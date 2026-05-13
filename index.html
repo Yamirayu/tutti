@@ -64,7 +64,6 @@
             border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
         }
 
-        /* Itens de Lista */
         .item-vencimento {
             padding: 15px; margin: 10px 0; border-radius: 8px;
             border-left: 8px solid #ddd; background: #f9f9f9;
@@ -72,18 +71,13 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
-        .urgente { border: 2px solid #e50914; position: relative; }
-        .urgente::before { 
-            content: "⚠️ PRIORIDADE"; position: absolute; top: -10px; left: 10px; 
-            background: #e50914; color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; font-weight: bold;
-        }
-        
         .vencido { background-color: #ffcccc !important; border-left-color: #ff0000 !important; }
         .alerta-laranja { background-color: #ffedcc !important; border-left-color: #ffa500 !important; }
 
         .btn-zerar { background: #666 !important; margin-top: 20px; }
-        .btn-backup { background: #28a745 !important; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
+        
+        .sub-item { font-size: 0.9em; padding: 5px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
@@ -104,7 +98,7 @@
             <div class="nav-links">
                 <button onclick="aba('gastos')">Gastos</button>
                 <button onclick="aba('vencimentos')">Vencimentos</button>
-                <button onclick="aba('pedidos')">🚚 Pedidos</button>
+                <button onclick="aba('pedidos')">📦 Pedidos</button>
                 <button onclick="aba('ajustes')">Ajustes</button>
             </div>
         </nav>
@@ -112,23 +106,21 @@
         <section id="gastos" class="container active">
             <h2>Meus Gastos</h2>
             <div id="financeiro-ok">
-                <p>Meta Mensal: <b>R$ <span id="valMeta">0</span></b></p>
-                <input type="number" id="inGasto" placeholder="Valor do gasto (R$)">
-                <button class="btn-acao" onclick="addGasto()">Registrar Gasto</button>
+                <p>Meta: R$ <span id="valMeta">0</span></p>
+                <input type="number" id="inGasto" placeholder="Valor do gasto">
+                <button class="btn-acao" onclick="addGasto()">Registrar</button>
                 <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                    <p style="margin: 5px 0;">Gasto Total: <span id="totalG">0</span></p>
-                    <p style="margin: 5px 0;">Restante: <b id="restaG">0</b></p>
+                    <p>Total: <span id="totalG">0</span> | Restante: <b id="restaG">0</b></p>
                 </div>
             </div>
             <div id="financeiro-setup" style="display:none;">
-                <p>Olá! Defina sua meta.</p>
-                <input type="number" id="inMeta" placeholder="Meta mensal (R$)">
-                <button class="btn-acao" onclick="setMeta()">Salvar</button>
+                <input type="number" id="inMeta" placeholder="Definir meta mensal">
+                <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
             </div>
         </section>
 
         <section id="vencimentos" class="container">
-            <h2>Vencimentos da Casa</h2>
+            <h2>Vencimentos</h2>
             <input type="text" id="vNome" placeholder="Produto">
             <div style="display: flex; gap: 5px;">
                 <input type="number" id="vQtd" placeholder="Qtd">
@@ -140,30 +132,42 @@
         </section>
 
         <section id="pedidos" class="container">
-            <h2>🚚 Registro de Entregas</h2>
-            <p style="font-size: 0.8em; color: #666;">Registre o que chegou das empresas hoje.</p>
-            <input type="text" id="pEmpresa" placeholder="Empresa (Ex: Coca-Cola)">
-            <textarea id="pDetalhes" placeholder="O que chegou? (Ex: 10 fardos 220ml)" style="height: 60px;"></textarea>
-            <button class="btn-acao" style="background:#27ae60" onclick="registrarChegada()">Registrar Recebimento</button>
-            <div id="listaHistorico" style="margin-top:20px; color:#333;"></div>
+            <div id="view-lista-pedidos">
+                <h2>📦 Meus Pedidos</h2>
+                <button class="btn-acao" style="background:#f39c12; margin-bottom: 15px;" onclick="abrirNovoPedido()">+ Registrar Novo Pedido</button>
+                <div id="listaArquivosPedidos" style="color:#333;"></div>
+            </div>
+
+            <div id="view-novo-pedido" style="display:none;">
+                <button onclick="voltarParaPedidos()" style="background:none; border:none; color:#007bff; cursor:pointer; font-weight:bold; margin-bottom:10px;">← Voltar</button>
+                <h3>Novo Pedido</h3>
+                <input type="text" id="pEmpresa" placeholder="Empresa (Ex: Coca-Cola)">
+                <div style="background:#f9f9f9; padding:10px; border-radius:8px;">
+                    <input type="text" id="pProdNome" placeholder="Produto">
+                    <input type="number" id="pProdUn" placeholder="Unidades">
+                    <button class="btn-acao" style="background:#444;" onclick="addProdNaListaTemp()">+ Incluir Produto</button>
+                </div>
+                <div id="listaTempProd" style="margin-top:15px; font-size:0.9em; color:#333;"></div>
+                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Finalizar Pedido</button>
+            </div>
         </section>
 
         <section id="ajustes" class="container">
-            <h2>Configurações</h2>
-            <input type="text" id="cfgFoto" placeholder="Link da foto de perfil">
-            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto</button>
-            <hr style="margin: 20px 0; opacity: 0.2;">
-            <button class="btn-acao btn-backup" onclick="exportarDados()">Baixar Backup dos Dados</button>
-            <input type="file" id="importFile" style="font-size: 0.8em;" onchange="importarDados(this)">
-            <hr style="margin: 20px 0; opacity: 0.2;">
+            <h2>Ajustes</h2>
+            <label>Foto de Perfil (URL):</label>
+            <input type="text" id="cfgFoto" placeholder="Link da imagem">
+            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
+            <hr style="margin: 20px 0; opacity: 0.1;">
+            <label>Cores do Painel:</label><br>
             Fundo: <input type="color" id="cfgBg" onchange="salvarCores()"> 
             Card: <input type="color" id="cfgCard" onchange="salvarCores()">
-            <button class="btn-acao btn-zerar" onclick="zerarDados()">Zerar Meus Gastos</button>
+            <button class="btn-acao btn-zerar" onclick="zerarDados()">Zerar Gastos</button>
         </section>
     </div>
 
     <script>
         let logado = "";
+        let listaProdutosTemporaria = [];
         const DB_KEY = 'casaDB_vFinal_BackupSystem';
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
@@ -204,11 +208,10 @@
             document.getElementById(id).classList.add('active');
             if(id === 'gastos') renderFinanceiro();
             if(id === 'vencimentos') renderVenc();
-            if(id === 'pedidos') renderHistorico();
+            if(id === 'pedidos') { voltarParaPedidos(); renderArquivosPedidos(); }
             if(id === 'ajustes') carregarAjustes();
         }
 
-        // LÓGICA GASTOS
         function renderFinanceiro() {
             const p = db.perfis[logado];
             if(p.meta === 0) {
@@ -231,7 +234,6 @@
             if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value = ''; }
         }
 
-        // LÓGICA VENCIMENTOS
         function addVenc() {
             const n = document.getElementById('vNome').value;
             const q = parseInt(document.getElementById('vQtd').value) || 0;
@@ -247,62 +249,76 @@
             db.vencimentos.forEach((it, i) => {
                 const dataV = new Date(it.d);
                 const diff = Math.ceil((dataV - hoje) / (1000 * 60 * 60 * 24));
-                let classe = "";
-                if (diff <= 10) classe = "vencido";
-                else if (diff <= 15) classe = "alerta-laranja";
-                if (classe === "" && ((it.p < 5 && it.q < 15) || (it.p > 5 && it.q === 15 && diff <= 15))) {
-                    classe = "alerta-laranja";
-                }
-                const destaque = (i === 0 && diff <= 15) ? "urgente" : "";
-                lista.innerHTML += `<div class="item-vencimento ${classe} ${destaque}"><span><b>${it.n}</b> (${it.q} un)<br><small>R$ ${it.p.toFixed(2)} | Venc: ${it.d.split('-').reverse().join('/')}</small></span><button onclick="delV(${i})" style="background:none; border:none; cursor:pointer;">❌</button></div>`;
+                let classe = diff <= 10 ? "vencido" : (diff <= 15 ? "alerta-laranja" : "");
+                lista.innerHTML += `<div class="item-vencimento ${classe}"><span><b>${it.n}</b> (${it.q} un)<br><small>R$ ${it.p.toFixed(2)} | Venc: ${it.d.split('-').reverse().join('/')}</small></span><button onclick="delV(${i})" style="background:none; border:none; cursor:pointer;">❌</button></div>`;
             });
         }
         function delV(i) { db.vencimentos.splice(i,1); salvar(); renderVenc(); }
 
-        // LÓGICA ENTREGAS (PEDIDOS)
-        function registrarChegada() {
-            const empresa = document.getElementById('pEmpresa').value;
-            const detalhes = document.getElementById('pDetalhes').value;
-            if(empresa && detalhes) {
-                if(!db.historicoEntregas) db.historicoEntregas = [];
-                db.historicoEntregas.unshift({ quem: logado, empresa, detalhes, data: new Date().toLocaleDateString('pt-BR'), expandido: false });
-                salvar(); renderHistorico();
-                document.getElementById('pEmpresa').value = ""; document.getElementById('pDetalhes').value = "";
+        function abrirNovoPedido() {
+            document.getElementById('view-lista-pedidos').style.display = 'none';
+            document.getElementById('view-novo-pedido').style.display = 'block';
+            listaProdutosTemporaria = [];
+            renderListaTemp();
+        }
+        function voltarParaPedidos() {
+            document.getElementById('view-lista-pedidos').style.display = 'block';
+            document.getElementById('view-novo-pedido').style.display = 'none';
+        }
+        function addProdNaListaTemp() {
+            const nome = document.getElementById('pProdNome').value;
+            const un = document.getElementById('pProdUn').value;
+            if(nome && un) {
+                listaProdutosTemporaria.push({ nome, un });
+                document.getElementById('pProdNome').value = "";
+                document.getElementById('pProdUn').value = "";
+                renderListaTemp();
             }
         }
-        function renderHistorico() {
-            const lista = document.getElementById('listaHistorico');
+        function renderListaTemp() {
+            const lista = document.getElementById('listaTempProd');
+            lista.innerHTML = listaProdutosTemporaria.length > 0 ? "<b>Lista:</b><br>" : "";
+            listaProdutosTemporaria.forEach((p) => {
+                lista.innerHTML += `<div class="sub-item">${p.nome} <span>${p.un} un</span></div>`;
+            });
+        }
+        function salvarPedidoFinal() {
+            const empresa = document.getElementById('pEmpresa').value;
+            if(empresa && listaProdutosTemporaria.length > 0) {
+                db.historicoEntregas.unshift({ empresa, produtos: listaProdutosTemporaria, data: new Date().toLocaleDateString('pt-BR'), quem: logado, expandido: false });
+                salvar(); voltarParaPedidos(); renderArquivosPedidos();
+                document.getElementById('pEmpresa').value = "";
+            }
+        }
+        function renderArquivosPedidos() {
+            const lista = document.getElementById('listaArquivosPedidos');
             lista.innerHTML = "";
-            if(!db.historicoEntregas) db.historicoEntregas = [];
             db.historicoEntregas.forEach((p, i) => {
                 const display = p.expandido ? "block" : "none";
-                const btnTxt = p.expandido ? "Recolher ↑" : "Ler mais...";
+                const seta = p.expandido ? "▲" : "▼";
+                let prodHtml = p.produtos.map(pr => `<div class="sub-item">${pr.nome} <span>${pr.un} un</span></div>`).join("");
                 lista.innerHTML += `
-                <div class="item-vencimento" style="border-left-color: #27ae60; flex-direction: column; align-items: flex-start;">
-                    <div style="display:flex; justify-content: space-between; width: 100%;">
-                        <b>${p.empresa}</b> <small>(${p.data})</small>
-                        <button onclick="delHistorico(${i})" style="background:none; border:none;">🗑️</button>
+                <div class="item-vencimento" style="border-left-color:#f39c12; flex-direction:column; align-items:flex-start;">
+                    <div style="display:flex; justify-content:space-between; width:100%; cursor:pointer;" onclick="togglePedido(${i})">
+                        <b>${p.empresa}</b> <span><small>${p.data}</small> ${seta}</span>
                     </div>
-                    <div style="font-size: 0.8em; color: #666;">Recebido por: ${p.quem}</div>
-                    <div style="display: ${display}; margin-top: 10px; padding: 10px; background: #eee; border-radius: 4px; width: 95%; white-space: pre-wrap;">${p.detalhes}</div>
-                    <button onclick="toggleDetalhe(${i})" style="background:none; border:none; color:#007bff; cursor:pointer; font-weight:bold; padding: 5px 0;">${btnTxt}</button>
+                    <div style="display:${display}; width:100%; margin-top:10px; background:#fff; padding:5px; border-radius:4px;">
+                        ${prodHtml}
+                        <div style="margin-top:10px; font-size:0.7em; color:#666;">Por: ${p.quem} | <span onclick="delHistorico(${i})" style="color:red; cursor:pointer;">Excluir</span></div>
+                    </div>
                 </div>`;
             });
         }
-        function toggleDetalhe(i) { db.historicoEntregas[i].expandido = !db.historicoEntregas[i].expandido; renderHistorico(); }
-        function delHistorico(i) { if(confirm("Excluir?")) { db.historicoEntregas.splice(i,1); salvar(); renderHistorico(); } }
+        function togglePedido(i) { db.historicoEntregas[i].expandido = !db.historicoEntregas[i].expandido; renderArquivosPedidos(); }
+        function delHistorico(i) { if(confirm("Excluir?")) { db.historicoEntregas.splice(i, 1); salvar(); renderArquivosPedidos(); } }
 
-        // AJUSTES E AUXILIARES
-        function carregarAjustes() {
-            const p = db.perfis[logado];
-            document.getElementById('cfgFoto').value = p.foto;
-        }
-        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto salva!"); }
+        function carregarAjustes() { document.getElementById('cfgFoto').value = db.perfis[logado].foto; }
+        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto OK!"); }
         function atualizarMiniAvatar() {
-            const foto = db.perfis[logado].foto;
-            const mini = document.getElementById('mini-avatar');
-            mini.style.backgroundImage = foto ? `url('${foto}')` : "none";
-            mini.innerText = foto ? "" : logado[0];
+            const f = db.perfis[logado].foto;
+            const m = document.getElementById('mini-avatar');
+            m.style.backgroundImage = f ? `url('${f}')` : "none";
+            m.innerText = f ? "" : logado[0];
         }
         function salvarCores() { 
             db.perfis[logado].cores.bg = document.getElementById('cfgBg').value; 
@@ -313,15 +329,6 @@
             const c = db.perfis[logado].cores; 
             document.body.style.backgroundColor = c.bg; 
             document.documentElement.style.setProperty('--bg-container', c.card); 
-        }
-        function exportarDados() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-            const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "backup.json"); a.click();
-        }
-        function importarDados(input) {
-            const r = new FileReader();
-            r.onload = function(){ db = JSON.parse(r.result); salvar(); location.reload(); };
-            r.readAsText(input.files[0]);
         }
         function zerarDados() { if(confirm("Zerar gastos?")) { db.perfis[logado].meta = 0; db.perfis[logado].gastos = 0; salvar(); renderFinanceiro(); } }
         function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
