@@ -1,203 +1,324 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador Inteligente</title>
+    <title>Organizador Premium</title>
     <style>
-        :root { --bg-body: #141414; --bg-container: #ffffff; --cor-texto: #333333; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: white; margin: 0; }
-        .container { max-width: 480px; margin: 20px auto; background: var(--bg-container); padding: 20px; border-radius: 12px; color: var(--cor-texto); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        :root {
+            --bg-body: #141414;
+            --bg-container: #ffffff;
+            --cor-texto: #333333;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-body); 
+            color: white; margin: 0; transition: 0.4s;
+        }
+
+        /* --- TELA DE PERFIS --- */
+        #tela-perfis {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        }
+        .perfis-container { display: flex; gap: 30px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+        .perfil-card { cursor: pointer; text-align: center; width: 120px; transition: 0.3s; }
+        .perfil-card:hover { transform: scale(1.1); }
+        .avatar {
+            width: 120px; height: 120px; border-radius: 8px;
+            background-size: cover; background-position: center;
+            border: 3px solid transparent; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+            background-color: #333;
+        }
+
+        /* --- NAVBAR --- */
         #interface-principal { display: none; }
-        .navbar { display: flex; justify-content: space-around; padding: 15px; background: #000; position: sticky; top: 0; z-index: 100; }
-        .navbar button { background: none; border: none; color: #888; font-weight: bold; cursor: pointer; }
-        .navbar button.active { color: white; border-bottom: 2px solid white; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; background: rgba(0,0,0,0.9);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-links button {
+            background: none; border: none; color: #aaa; margin-left: 15px;
+            cursor: pointer; font-size: 1em; font-weight: bold;
+        }
+        .nav-links button.active { color: white; border-bottom: 2px solid #e50914; }
+
+        /* --- CONTEUDO --- */
+        .container {
+            max-width: 480px; margin: 30px auto; background: var(--bg-container);
+            padding: 25px; border-radius: 12px; color: var(--cor-texto);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
         section { display: none; }
         section.active { display: block; }
+
         input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button.btn-acao { padding: 12px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .card-pedido { background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 5px solid #f39c12; }
-        .sugestao-card { background: #e3f2fd; border: 1px dashed #2196f3; padding: 10px; border-radius: 8px; margin-top: 10px; color: #0d47a1; }
-        .badge { background: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; }
+        button.btn-acao { 
+            padding: 12px; background: #e50914; color: white; 
+            border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
+        }
+
+        /* --- CARDS DE PEDIDO --- */
+        .card-pedido {
+            padding: 15px; margin: 10px 0; border-radius: 8px;
+            border-left: 8px solid #f39c12; background: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .sugestao-box {
+            background: #eef7ff; padding: 12px; border-radius: 8px; margin-top: 10px;
+            border: 1px dashed #2196f3;
+        }
+        .sub-item { font-size: 0.9em; padding: 5px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; }
+
+        .quadrado-cor { width: 40px; height: 40px; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; position: relative; overflow: hidden; display: inline-block; vertical-align: middle; }
+        .quadrado-cor input[type="color"] { position: absolute; top: -10px; left: -10px; width: 60px; height: 60px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="tela-perfis" style="text-align:center; padding-top:100px;">
+    <div id="tela-perfis">
         <h1>Quem está usando?</h1>
-        <button class="btn-acao" style="width:150px" onclick="entrar('Brena')">Brena</button>
-        <button class="btn-acao" style="width:150px" onclick="entrar('Yara')">Yara</button>
+        <div class="perfis-container" id="lista-avatars"></div>
     </div>
 
     <div id="interface-principal">
         <nav class="navbar">
-            <button id="nav-pedidos" onclick="aba('pedidos')">HISTÓRICO</button>
-            <button id="nav-inventario" onclick="aba('inventario')">📦 INVENTÁRIO</button>
-            <button id="nav-ajustes" onclick="aba('ajustes')">AJUSTES</button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="mini-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
+                <h2 id="user-display" style="margin:0; font-size: 1.2em;"></h2>
+            </div>
+            <div class="nav-links">
+                <button onclick="aba('gastos')">Gastos</button>
+                <button onclick="aba('pedidos')">Pedidos</button>
+                <button onclick="aba('ajustes')">Ajustes</button>
+            </div>
         </nav>
 
-        <section id="pedidos" class="container">
-            <h2>Pedidos Realizados</h2>
-            <div id="listaHistorico"></div>
+        <section id="gastos" class="container active">
+            <h2>Meus Gastos</h2>
+            <div id="financeiro-ok">
+                <p>Meta: R$ <span id="valMeta">0</span></p>
+                <input type="number" id="inGasto" placeholder="Valor do gasto">
+                <button class="btn-acao" onclick="addGasto()">Registrar</button>
+                <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                    <p>Total: <span id="totalG">0</span> | Resta: <b id="restaG">0</b></p>
+                </div>
+            </div>
+            <div id="financeiro-setup" style="display:none;">
+                <input type="number" id="inMeta" placeholder="Definir meta mensal">
+                <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
+            </div>
         </section>
 
-        <section id="inventario" class="container">
-            <h2>📦 O que pedir hoje?</h2>
-            <p style="font-size: 0.8em; color: #666;">Escolha a empresa para ver o que você pediu da última vez e quanto deve pedir agora.</p>
-            
-            <select id="selEmpresaInv" onchange="gerarSugestao()">
-                <option value="">Selecione a Empresa...</option>
+        <section id="pedidos" class="container">
+            <h2>📦 Sugestão de Pedido</h2>
+            <label>1. Escolha a Empresa:</label>
+            <select id="selEmpresa" onchange="gerarSugestao()">
+                <option value="">Selecione...</option>
             </select>
 
-            <div id="areaSugestao">
-                </div>
-            
-            <hr>
-            <button class="btn-acao" style="background:#f39c12" onclick="abrirNovoPedido()">+ Registrar Novo Pedido Chegando</button>
-        </section>
+            <div id="areaSugestao"></div>
 
-        <section id="novo-pedido" class="container">
-            <button onclick="aba('inventario')" style="border:none; background:none; color:blue; cursor:pointer;">← Cancelar</button>
-            <h3>Novo Pedido de <span id="nomeEmpresaNovo"></span></h3>
-            <div id="inputsProdutos">
-                <input type="text" id="pNome" placeholder="Produto (ex: Coca 2L)">
-                <input type="number" id="pQtd" placeholder="Quantidade Comprada">
-                <button class="btn-acao" style="background:#444" onclick="addItem()">Adicionar na Lista</button>
+            <hr style="margin:20px 0; opacity:0.1">
+            
+            <button class="btn-acao" style="background:#f39c12" onclick="abrirNovoPedido()">+ Chegou Pedido Novo</button>
+            
+            <div id="view-novo-pedido" style="display:none; margin-top:20px; border-top: 2px solid #eee; pt-20">
+                <h3>Registrar Entrada</h3>
+                <input type="text" id="pProdNome" placeholder="Nome do Produto">
+                <input type="number" id="pProdUn" placeholder="Qtd que chegou">
+                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir Item</button>
+                <div id="listaTemp" style="margin:10px 0"></div>
+                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar este Pedido como Padrão</button>
             </div>
-            <div id="listaTemp" style="margin: 15px 0; color: #333;"></div>
-            <button class="btn-acao" style="background:#27ae60" onclick="finalizarPedido()">Salvar e Finalizar</button>
         </section>
 
         <section id="ajustes" class="container">
-            <h3>🏢 Cadastrar Empresas</h3>
-            <input type="text" id="newEmp" placeholder="Nome da Empresa">
-            <button class="btn-acao" onclick="addEmp()">Salvar Empresa</button>
+            <h2>Ajustes</h2>
+            <label>Cadastrar Empresa:</label>
+            <input type="text" id="newEmpresa" placeholder="Nome da empresa">
+            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Salvar Empresa</button>
+            
+            <hr style="margin:20px 0; opacity:0.1">
+            
+            <label>Foto de Perfil (URL):</label>
+            <input type="text" id="cfgFoto" placeholder="Link da imagem">
+            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
+            
+            <div style="margin-top:15px">
+                Fundo: <div class="quadrado-cor" id="previewBg"><input type="color" id="cfgBg" oninput="previewCor()"></div>
+                Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
+            </div>
+            <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
+            <button class="btn-acao" style="background:#666" onclick="location.reload()">Trocar Usuário</button>
         </section>
     </div>
 
     <script>
         let logado = "";
         let listaTemp = [];
-        let db = JSON.parse(localStorage.getItem('mega_gestao')) || {
-            empresas: ["Coca-Cola", "Ambev"],
-            pedidos: [] // [{empresa: '', data: '', itens: [{nome: '', un: 0}]}]
+        const DB_KEY = 'casa_premium_v3';
+
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            perfis: {
+                "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+                "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
+            },
+            empresas: ["Coca-Cola"],
+            pedidosPadrao: {} // { "Coca-Cola": [{nome: 'coca', un: 10}] }
         };
 
-        function entrar(n) { 
-            logado = n; 
-            document.getElementById('tela-perfis').style.display='none'; 
-            document.getElementById('interface-principal').style.display='block'; 
-            aba('inventario');
+        function renderPerfis() {
+            const container = document.getElementById('lista-avatars');
+            container.innerHTML = "";
+            Object.keys(db.perfis).forEach(p => {
+                const foto = db.perfis[p].foto;
+                container.innerHTML += `
+                    <div class="perfil-card" onclick="entrar('${p}')">
+                        <div class="avatar" style="background-image: url('${foto}');">${foto ? '' : p[0]}</div>
+                        <span style="font-weight:bold;">${p}</span>
+                    </div>`;
+            });
+        }
+
+        function entrar(nome) {
+            logado = nome;
+            document.getElementById('tela-perfis').style.display = 'none';
+            document.getElementById('interface-principal').style.display = 'block';
+            document.getElementById('user-display').innerText = nome;
+            atualizarMiniAvatar(); aplicarCores(); aba('gastos');
         }
 
         function aba(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'inventario') { popularSelects(); renderSugestaoVazia(); }
-            if(id === 'pedidos') renderHistorico();
+            if(id === 'pedidos') popularEmpresas();
+            if(id === 'ajustes') carregarAjustes();
         }
 
-        function popularSelects() {
-            const sel = document.getElementById('selEmpresaInv');
-            sel.innerHTML = '<option value="">Selecione a Empresa...</option>';
+        // --- PEDIDOS (LÓGICA PEDIDA) ---
+        function popularEmpresas() {
+            const sel = document.getElementById('selEmpresa');
+            sel.innerHTML = '<option value="">Selecione...</option>';
             db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
         }
 
         function gerarSugestao() {
-            const empresa = document.getElementById('selEmpresaInv').value;
+            const emp = document.getElementById('selEmpresa').value;
             const area = document.getElementById('areaSugestao');
-            if(!empresa) return area.innerHTML = "";
-
-            // Acha o último pedido dessa empresa
-            const ultimo = db.pedidos.find(p => p.empresa === empresa);
-
-            if(!ultimo) {
-                area.innerHTML = "<p>Nenhum pedido anterior desta empresa encontrado.</p>";
+            if(!emp || !db.pedidosPadrao[emp]) {
+                area.innerHTML = "<p style='font-size:0.8em; color:gray'>Sem histórico para esta empresa.</p>";
                 return;
             }
 
-            let html = `<div class="sugestao-card">
-                <strong>Último Pedido em: ${ultimo.data}</strong><br><br>`;
-            
-            ultimo.itens.forEach((it, idx) => {
+            let html = `<div class="sugestao-box"><strong>Baseado no último pedido:</strong><br><br>`;
+            db.pedidosPadrao[emp].forEach((it, idx) => {
                 html += `
-                <div style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:10px;">
-                    <span>${it.nome} (Comprou: ${it.un})</span><br>
+                <div style="margin-bottom:10px">
+                    <small>${it.nome} (Última: ${it.un})</small>
                     <input type="number" placeholder="Quanto tem hoje?" 
-                        id="hoje_${idx}" 
-                        oninput="calcularFalta(${it.un}, this.value, 'falta_${idx}')"
-                        style="width:80%; font-size:0.8em; padding:5px;">
-                    <div style="font-weight:bold; color:#e50914" id="falta_${idx}">Pedir: 0</div>
+                        oninput="document.getElementById('res_${idx}').innerText = (${it.un} - this.value > 0) ? (${it.un} - this.value) : 0" 
+                        style="padding:5px; margin:0">
+                    <div style="font-weight:bold; color:#e50914">Pedir: <span id="res_${idx}">0</span></div>
                 </div>`;
             });
-
             html += `</div>`;
             area.innerHTML = html;
         }
 
-        function calcularFalta(comprou, temHoje, idAlvo) {
-            let falta = comprou - (parseInt(temHoje) || 0);
-            if (falta < 0) falta = 0;
-            document.getElementById(idAlvo).innerText = "Pedir: " + falta;
-        }
-
         function abrirNovoPedido() {
-            const emp = document.getElementById('selEmpresaInv').value;
+            const emp = document.getElementById('selEmpresa').value;
             if(!emp) return alert("Selecione a empresa primeiro!");
-            document.getElementById('nomeEmpresaNovo').innerText = emp;
+            document.getElementById('view-novo-pedido').style.display = 'block';
             listaTemp = [];
-            document.getElementById('listaTemp').innerHTML = "";
-            aba('novo-pedido');
+            renderTemp();
         }
 
-        function addItem() {
-            const n = document.getElementById('pNome').value;
-            const q = parseInt(document.getElementById('pQtd').value);
-            if(n && q) {
-                listaTemp.push({nome: n, un: q});
-                document.getElementById('pNome').value = "";
-                document.getElementById('pQtd').value = "";
+        function addItemTemp() {
+            const n = document.getElementById('pProdNome').value;
+            const u = document.getElementById('pProdUn').value;
+            if(n && u) {
+                listaTemp.push({nome: n, un: parseInt(u)});
+                document.getElementById('pProdNome').value = "";
+                document.getElementById('pProdUn').value = "";
                 renderTemp();
             }
         }
 
         function renderTemp() {
-            const div = document.getElementById('listaTemp');
-            div.innerHTML = listaTemp.map(i => `<div>• ${i.nome}: ${i.un} un</div>`).join("");
+            document.getElementById('listaTemp').innerHTML = listaTemp.map(i => `<div class="sub-item">${i.nome} <span>${i.un} un</span></div>`).join("");
         }
 
-        function finalizarPedido() {
-            const emp = document.getElementById('selEmpresaInv').value;
-            const novo = {
-                empresa: emp,
-                data: new Date().toLocaleDateString('pt-BR'),
-                itens: listaTemp,
-                quem: logado
-            };
-            db.pedidos.unshift(novo); // Coloca no início
+        function salvarPedidoFinal() {
+            const emp = document.getElementById('selEmpresa').value;
+            db.pedidosPadrao[emp] = listaTemp;
             salvar();
-            alert("Pedido salvo com sucesso!");
-            aba('inventario');
+            alert("Estoque padrão atualizado!");
+            document.getElementById('view-novo-pedido').style.display = 'none';
+            gerarSugestao();
         }
 
-        function renderHistorico() {
-            const div = document.getElementById('listaHistorico');
-            div.innerHTML = db.pedidos.map(p => `
-                <div class="card-pedido">
-                    <div style="display:flex; justify-content:space-between">
-                        <b>${p.empresa}</b> <span class="badge">${p.data}</span>
-                    </div>
-                    <div style="font-size:0.8em; margin-top:5px; color:#555">
-                        ${p.itens.map(i => `${i.nome} (${i.un})`).join(", ")}
-                    </div>
-                </div>
-            `).join("");
+        // --- GASTOS ---
+        function renderFinanceiro() {
+            const p = db.perfis[logado];
+            if(p.meta === 0) {
+                document.getElementById('financeiro-ok').style.display = 'none';
+                document.getElementById('financeiro-setup').style.display = 'block';
+            } else {
+                document.getElementById('financeiro-ok').style.display = 'block';
+                document.getElementById('financeiro-setup').style.display = 'none';
+                document.getElementById('valMeta').innerText = p.meta.toFixed(2);
+                document.getElementById('totalG').innerText = `R$ ${p.gastos.toFixed(2)}`;
+                document.getElementById('restaG').innerText = `R$ ${(p.meta - p.gastos).toFixed(2)}`;
+            }
+        }
+        function setMeta() {
+            const m = parseFloat(document.getElementById('inMeta').value);
+            if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); }
+        }
+        function addGasto() {
+            const v = parseFloat(document.getElementById('inGasto').value);
+            if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value = ''; }
         }
 
-        function renderSugestaoVazia() { document.getElementById('areaSugestao').innerHTML = ""; }
-        function addEmp() { const e = document.getElementById('newEmp').value; if(e) { db.empresas.push(e); salvar(); alert("OK"); aba('inventario'); } }
-        function salvar() { localStorage.setItem('mega_gestao', JSON.stringify(db)); }
+        // --- AJUSTES ---
+        function addEmpresa() {
+            const e = document.getElementById('newEmpresa').value;
+            if(e && !db.empresas.includes(e)) { db.empresas.push(e); salvar(); popularEmpresas(); alert("Empresa salva!"); }
+        }
+        function carregarAjustes() {
+            const p = db.perfis[logado];
+            document.getElementById('cfgFoto').value = p.foto;
+            document.getElementById('cfgBg').value = p.cores.bg;
+            document.getElementById('cfgCard').value = p.cores.card;
+            previewCor();
+        }
+        function previewCor() {
+            document.getElementById('previewBg').style.backgroundColor = document.getElementById('cfgBg').value;
+            document.getElementById('previewCard').style.backgroundColor = document.getElementById('cfgCard').value;
+        }
+        function salvarCores() {
+            db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
+            db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
+            salvar(); aplicarCores(); alert("Cores aplicadas!");
+        }
+        function aplicarCores() {
+            const c = db.perfis[logado].cores;
+            document.body.style.backgroundColor = c.bg;
+            document.documentElement.style.setProperty('--bg-container', c.card);
+        }
+        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto salva!"); }
+        function atualizarMiniAvatar() {
+            const f = db.perfis[logado].foto;
+            const m = document.getElementById('mini-avatar');
+            m.style.backgroundImage = f ? `url('${f}')` : "none";
+            m.innerText = f ? "" : logado[0];
+        }
+
+        function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+        window.onload = renderPerfis;
     </script>
 </body>
 </html>
