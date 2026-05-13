@@ -61,11 +61,6 @@
         }
 
         /* --- CARDS DE PEDIDO --- */
-        .card-pedido {
-            padding: 15px; margin: 10px 0; border-radius: 8px;
-            border-left: 8px solid #f39c12; background: #f9f9f9;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
         .sugestao-box {
             background: #eef7ff; padding: 12px; border-radius: 8px; margin-top: 10px;
             border: 1px dashed #2196f3;
@@ -118,25 +113,28 @@
             <select id="selEmpresa" onchange="gerarSugestao()">
                 <option value="">Selecione...</option>
             </select>
-
             <div id="areaSugestao"></div>
-
             <hr style="margin:20px 0; opacity:0.1">
-            
             <button class="btn-acao" style="background:#f39c12" onclick="abrirNovoPedido()">+ Chegou Pedido Novo</button>
-            
-            <div id="view-novo-pedido" style="display:none; margin-top:20px; border-top: 2px solid #eee; pt-20">
+            <div id="view-novo-pedido" style="display:none; margin-top:20px;">
                 <h3>Registrar Entrada</h3>
                 <input type="text" id="pProdNome" placeholder="Nome do Produto">
                 <input type="number" id="pProdUn" placeholder="Qtd que chegou">
                 <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir Item</button>
                 <div id="listaTemp" style="margin:10px 0"></div>
-                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar este Pedido como Padrão</button>
+                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar como Padrão</button>
             </div>
         </section>
 
         <section id="ajustes" class="container">
             <h2>Ajustes</h2>
+            
+            <label>Trocar Meu Nome:</label>
+            <input type="text" id="cfgNome" placeholder="Novo nome">
+            <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Novo Nome</button>
+
+            <hr style="margin:20px 0; opacity:0.1">
+
             <label>Cadastrar Empresa:</label>
             <input type="text" id="newEmpresa" placeholder="Nome da empresa">
             <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Salvar Empresa</button>
@@ -152,14 +150,14 @@
                 Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
             </div>
             <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
-            <button class="btn-acao" style="background:#666" onclick="location.reload()">Trocar Usuário</button>
+            <button class="btn-acao" style="background:#666" onclick="location.reload()">Sair / Trocar Usuário</button>
         </section>
     </div>
 
     <script>
         let logado = "";
         let listaTemp = [];
-        const DB_KEY = 'casa_premium_v3';
+        const DB_KEY = 'casa_premium_v4';
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
             perfis: {
@@ -167,7 +165,7 @@
                 "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
             },
             empresas: ["Coca-Cola"],
-            pedidosPadrao: {} // { "Coca-Cola": [{nome: 'coca', un: 10}] }
+            pedidosPadrao: {}
         };
 
         function renderPerfis() {
@@ -191,6 +189,19 @@
             atualizarMiniAvatar(); aplicarCores(); aba('gastos');
         }
 
+        function trocarNome() {
+            const novoNome = document.getElementById('cfgNome').value.trim();
+            if(!novoNome || novoNome === logado) return alert("Digite um nome válido e diferente.");
+            
+            // Copia os dados para o novo nome e deleta o antigo
+            db.perfis[novoNome] = db.perfis[logado];
+            delete db.perfis[logado];
+            
+            salvar();
+            alert("Nome alterado! O sistema irá reiniciar.");
+            location.reload();
+        }
+
         function aba(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -198,7 +209,6 @@
             if(id === 'ajustes') carregarAjustes();
         }
 
-        // --- PEDIDOS (LÓGICA PEDIDA) ---
         function popularEmpresas() {
             const sel = document.getElementById('selEmpresa');
             sel.innerHTML = '<option value="">Selecione...</option>';
@@ -209,31 +219,20 @@
             const emp = document.getElementById('selEmpresa').value;
             const area = document.getElementById('areaSugestao');
             if(!emp || !db.pedidosPadrao[emp]) {
-                area.innerHTML = "<p style='font-size:0.8em; color:gray'>Sem histórico para esta empresa.</p>";
+                area.innerHTML = "<p style='font-size:0.8em; color:gray'>Sem histórico.</p>";
                 return;
             }
-
-            let html = `<div class="sugestao-box"><strong>Baseado no último pedido:</strong><br><br>`;
+            let html = `<div class="sugestao-box"><strong>Sugestão:</strong><br><br>`;
             db.pedidosPadrao[emp].forEach((it, idx) => {
-                html += `
-                <div style="margin-bottom:10px">
-                    <small>${it.nome} (Última: ${it.un})</small>
-                    <input type="number" placeholder="Quanto tem hoje?" 
-                        oninput="document.getElementById('res_${idx}').innerText = (${it.un} - this.value > 0) ? (${it.un} - this.value) : 0" 
-                        style="padding:5px; margin:0">
-                    <div style="font-weight:bold; color:#e50914">Pedir: <span id="res_${idx}">0</span></div>
-                </div>`;
+                html += `<div style="margin-bottom:10px"><small>${it.nome} (${it.un} un)</small><br><input type="number" placeholder="Tem hoje?" oninput="document.getElementById('res_${idx}').innerText = Math.max(0, ${it.un} - this.value)" style="padding:5px; width:80px"><span style="font-weight:bold; color:#e50914; margin-left:10px">Pedir: <span id="res_${idx}">0</span></span></div>`;
             });
-            html += `</div>`;
-            area.innerHTML = html;
+            area.innerHTML = html + `</div>`;
         }
 
         function abrirNovoPedido() {
-            const emp = document.getElementById('selEmpresa').value;
-            if(!emp) return alert("Selecione a empresa primeiro!");
+            if(!document.getElementById('selEmpresa').value) return alert("Selecione a empresa!");
             document.getElementById('view-novo-pedido').style.display = 'block';
-            listaTemp = [];
-            renderTemp();
+            listaTemp = []; renderTemp();
         }
 
         function addItemTemp() {
@@ -241,8 +240,7 @@
             const u = document.getElementById('pProdUn').value;
             if(n && u) {
                 listaTemp.push({nome: n, un: parseInt(u)});
-                document.getElementById('pProdNome').value = "";
-                document.getElementById('pProdUn').value = "";
+                document.getElementById('pProdNome').value = ""; document.getElementById('pProdUn').value = "";
                 renderTemp();
             }
         }
@@ -254,13 +252,11 @@
         function salvarPedidoFinal() {
             const emp = document.getElementById('selEmpresa').value;
             db.pedidosPadrao[emp] = listaTemp;
-            salvar();
-            alert("Estoque padrão atualizado!");
+            salvar(); alert("Salvo!");
             document.getElementById('view-novo-pedido').style.display = 'none';
             gerarSugestao();
         }
 
-        // --- GASTOS ---
         function renderFinanceiro() {
             const p = db.perfis[logado];
             if(p.meta === 0) {
@@ -274,42 +270,50 @@
                 document.getElementById('restaG').innerText = `R$ ${(p.meta - p.gastos).toFixed(2)}`;
             }
         }
+
         function setMeta() {
             const m = parseFloat(document.getElementById('inMeta').value);
             if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); }
         }
+
         function addGasto() {
             const v = parseFloat(document.getElementById('inGasto').value);
             if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value = ''; }
         }
 
-        // --- AJUSTES ---
         function addEmpresa() {
             const e = document.getElementById('newEmpresa').value;
             if(e && !db.empresas.includes(e)) { db.empresas.push(e); salvar(); popularEmpresas(); alert("Empresa salva!"); }
         }
+
         function carregarAjustes() {
             const p = db.perfis[logado];
+            document.getElementById('cfgNome').value = logado;
             document.getElementById('cfgFoto').value = p.foto;
             document.getElementById('cfgBg').value = p.cores.bg;
             document.getElementById('cfgCard').value = p.cores.card;
             previewCor();
         }
+
         function previewCor() {
             document.getElementById('previewBg').style.backgroundColor = document.getElementById('cfgBg').value;
             document.getElementById('previewCard').style.backgroundColor = document.getElementById('cfgCard').value;
         }
+
         function salvarCores() {
             db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
             db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
             salvar(); aplicarCores(); alert("Cores aplicadas!");
         }
+
         function aplicarCores() {
             const c = db.perfis[logado].cores;
             document.body.style.backgroundColor = c.bg;
             document.documentElement.style.setProperty('--bg-container', c.card);
         }
+
         function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto salva!"); }
+        
         function atualizarMiniAvatar() {
             const f = db.perfis[logado].foto;
             const m = document.getElementById('mini-avatar');
