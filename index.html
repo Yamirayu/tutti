@@ -8,11 +8,14 @@
         :root { --bg-body: #141414; --bg-container: #ffffff; --cor-texto: #333333; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: white; margin: 0; transition: 0.4s; }
         
+        /* --- TELA DE PERFIS --- */
         #tela-perfis { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
         .perfis-container { display: flex; gap: 30px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
         .perfil-card { cursor: pointer; text-align: center; width: 120px; transition: 0.3s; }
-        .avatar { width: 120px; height: 120px; border-radius: 8px; background-size: cover; background-position: center; background-color: #333; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; }
+        .avatar { width: 120px; height: 120px; border-radius: 8px; background-size: cover; background-position: center; background-color: #333; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; border: 3px solid transparent; }
+        .perfil-card:hover .avatar { border-color: white; }
 
+        /* --- INTERFACE --- */
         #interface-principal { display: none; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 100; }
@@ -26,13 +29,19 @@
         input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button.btn-acao { padding: 12px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
 
-        .item-lista { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .vencido { color: #e50914; font-weight: bold; background: #ffebee; }
+        /* Vencimentos e Alertas */
+        .item-vencimento {
+            padding: 15px; margin: 10px 0; border-radius: 8px;
+            border-left: 8px solid #ddd; background: #f9f9f9;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #333;
+        }
+        .urgente { border: 2px solid #e50914; position: relative; }
+        .urgente::before { content: "⚠️ PRIORIDADE"; position: absolute; top: -10px; left: 10px; background: #e50914; color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
+        .vencido { background-color: #ffcccc !important; border-left-color: #ff0000 !important; }
+        .alerta-laranja { background-color: #ffedcc !important; border-left-color: #ffa500 !important; }
+
         .sugestao-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
-        .quadrado-cor { width: 45px; height: 45px; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; position: relative; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 10px; }
-        .quadrado-cor input { position: absolute; top: -10px; left: -10px; width: 70px; height: 70px; cursor: pointer; }
-        
-        .info-venc { font-size: 0.85em; color: #666; display: block; }
     </style>
 </head>
 <body>
@@ -52,7 +61,7 @@
             <div class="nav-links">
                 <button id="btn-gastos" onclick="aba('gastos')">Gastos</button>
                 <button id="btn-pedidos" onclick="aba('pedidos')">Pedidos</button>
-                <button id="btn-vencidos" onclick="aba('vencidos')">Vencidos</button>
+                <button id="btn-vencimentos" onclick="aba('vencimentos')">Vencimentos</button>
                 <button id="btn-ajustes" onclick="aba('ajustes')">Ajustes</button>
             </div>
         </nav>
@@ -60,229 +69,215 @@
         <section id="gastos" class="container">
             <h2>Meus Gastos</h2>
             <div id="financeiro-ok">
-                <p>Meta: R$ <span id="valMeta">0</span></p>
-                <input type="number" id="inGasto" placeholder="Valor do gasto">
+                <p>Meta Mensal: <b>R$ <span id="valMeta">0</span></b></p>
+                <input type="number" id="inGasto" placeholder="Valor do gasto (R$)">
                 <button class="btn-acao" onclick="addGasto()">Registrar Gasto</button>
-                <div style="margin-top: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                    <p>Total: <span id="totalG">0</span> | Resta: <b id="restaG">0</b></p>
+                <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                    <p>Total Gasto: <span id="totalG">R$ 0,00</span></p>
+                    <p>Restante: <b id="restaG">R$ 0,00</b></p>
                 </div>
             </div>
             <div id="financeiro-setup" style="display:none;">
-                <input type="number" id="inMeta" placeholder="Definir meta">
+                <input type="number" id="inMeta" placeholder="Definir meta mensal (R$)">
                 <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
             </div>
         </section>
 
         <section id="pedidos" class="container">
             <h2>📦 Pedidos</h2>
-            <label>Selecione a Empresa:</label>
-            <select id="selEmpresa" onchange="gerarSugestao()"><option value="">Selecione...</option></select>
+            <select id="selEmpresa" onchange="gerarSugestao()"><option value="">Selecione a Empresa...</option></select>
             <div id="areaSugestao"></div>
-            <button class="btn-acao" style="background:#f39c12; margin-top: 20px;" onclick="abrirCadastroPedido()">+ Cadastrar/Editar Itens do Pedido</button>
-            <div id="view-novo-pedido" style="display:none; margin-top:15px; border-top: 2px solid #eee; padding-top: 15px;">
-                <input type="text" id="pProdNome" placeholder="Nome do Produto">
+            <button class="btn-acao" style="background:#f39c12" onclick="document.getElementById('view-novo-pedido').style.display='block'">+ Cadastrar Padrão de Pedido</button>
+            <div id="view-novo-pedido" style="display:none; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">
+                <input type="text" id="pProdNome" placeholder="Produto">
                 <input type="number" id="pProdUn" placeholder="Meta de estoque">
-                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">+ Adicionar à Lista</button>
-                <div id="listaTemp" style="margin:15px 0; background: #fff; border: 1px solid #eee; border-radius: 5px;"></div>
+                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir</button>
+                <div id="listaTemp" style="margin:10px 0"></div>
                 <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar Padrão</button>
             </div>
         </section>
 
-        <section id="vencidos" class="container">
-            <h2>⚠️ Controle de Vencidos</h2>
-            <input type="text" id="vencNome" placeholder="Nome do produto">
-            <div style="display: flex; gap: 10px;">
-                <input type="number" id="vencUn" placeholder="Qtd (Un)">
-                <input type="number" id="vencValor" placeholder="Valor R$">
+        <section id="vencimentos" class="container">
+            <h2>⚠️ Vencimentos da Casa</h2>
+            <input type="text" id="vNome" placeholder="Nome do Produto">
+            <div style="display: flex; gap: 5px;">
+                <input type="number" id="vQtd" placeholder="Qtd">
+                <input type="number" id="vPreco" placeholder="Preço (R$)">
             </div>
-            <label>Data de Vencimento:</label>
-            <input type="date" id="vencData">
-            <button class="btn-acao" onclick="addVencido()">Cadastrar Vencimento</button>
-            <hr style="margin:20px 0; opacity:0.1">
-            <div id="listaVencidos"></div>
+            <input type="date" id="vData">
+            <button class="btn-acao" style="background:#007bff" onclick="addVenc()">Adicionar Item</button>
+            <div id="listaV" style="margin-top:15px;"></div>
         </section>
 
         <section id="ajustes" class="container">
             <h2>Ajustes</h2>
-            <input type="text" id="cfgNome" placeholder="Mudar Nome">
-            <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Nome</button>
-            <hr>
-            <input type="text" id="cfgFoto" placeholder="Link da Foto">
+            <input type="text" id="cfgFoto" placeholder="URL da Foto">
             <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto</button>
             <div style="margin:15px 0">
-                Fundo: <div class="quadrado-cor" id="previewBg"><input type="color" id="cfgBg" oninput="previewCor()"></div>
-                Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
+                Fundo: <input type="color" id="cfgBg" onchange="salvarCores()"> 
+                Card: <input type="color" id="cfgCard" onchange="salvarCores()">
             </div>
-            <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
             <hr>
             <input type="text" id="newEmpresa" placeholder="Nova Empresa">
             <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar Empresa</button>
+            <button class="btn-acao" style="background:#666; margin-top:30px" onclick="zerarDados()">Zerar Meta e Gastos</button>
         </section>
     </div>
 
-    <script>
-        let logado = "";
-        let listaTemp = [];
-        const DB_KEY = 'casa_premium_v11';
+<script>
+    let logado = "";
+    let listaTemp = [];
+    const DB_KEY = 'casa_premium_v_final';
 
-        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            perfis: {
-                "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
-                "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
-                "Nathalia": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
-            },
-            empresas: ["Coca-Cola"],
-            pedidosPadrao: {},
-            vencidos: []
-        };
+    let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+        perfis: {
+            "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+            "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+            "Nathalia": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
+        },
+        empresas: ["Coca-Cola"],
+        pedidosPadrao: {},
+        vencimentos: []
+    };
 
-        function renderPerfis() {
-            const container = document.getElementById('lista-avatars');
-            container.innerHTML = "";
-            Object.keys(db.perfis).forEach(p => {
-                const foto = db.perfis[p].foto;
-                container.innerHTML += `<div class="perfil-card" onclick="entrar('${p}')"><div class="avatar" style="background-image: url('${foto}')">${foto?'':p[0]}</div><b>${p}</b></div>`;
-            });
+    function renderPerfis() {
+        const container = document.getElementById('lista-avatars');
+        container.innerHTML = "";
+        Object.keys(db.perfis).forEach(p => {
+            const foto = db.perfis[p].foto;
+            container.innerHTML += `<div class="perfil-card" onclick="entrar('${p}')"><div class="avatar" style="background-image: url('${foto}')">${foto?'':p[0]}</div><b>${p}</b></div>`;
+        });
+    }
+
+    function entrar(nome) {
+        logado = nome;
+        document.getElementById('tela-perfis').style.display = 'none';
+        document.getElementById('interface-principal').style.display = 'block';
+        document.getElementById('user-display').innerText = nome;
+        aplicarCores(); atualizarMiniAvatar(); aba('gastos');
+    }
+
+    function aba(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        const btn = document.getElementById('btn-' + id);
+        if(btn) btn.classList.add('active');
+        if(id === 'gastos') renderFinanceiro();
+        if(id === 'vencimentos') renderVenc();
+        if(id === 'ajustes') carregarAjustes();
+        if(id === 'pedidos') popularEmpresas();
+    }
+
+    // --- FINANCEIRO ---
+    function renderFinanceiro() {
+        const p = db.perfis[logado];
+        if(p.meta === 0) {
+            document.getElementById('financeiro-ok').style.display = 'none';
+            document.getElementById('financeiro-setup').style.display = 'block';
+        } else {
+            document.getElementById('financeiro-ok').style.display = 'block';
+            document.getElementById('financeiro-setup').style.display = 'none';
+            document.getElementById('valMeta').innerText = p.meta.toFixed(2);
+            document.getElementById('totalG').innerText = `R$ ${p.gastos.toFixed(2)}`;
+            document.getElementById('restaG').innerText = `R$ ${(p.meta - p.gastos).toFixed(2)}`;
         }
+    }
+    function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
+    function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value=''; } }
+    function zerarDados() { if(confirm("Zerar meta e gastos?")) { db.perfis[logado].meta = 0; db.perfis[logado].gastos = 0; salvar(); renderFinanceiro(); } }
 
-        function entrar(nome) {
-            logado = nome;
-            document.getElementById('tela-perfis').style.display = 'none';
-            document.getElementById('interface-principal').style.display = 'block';
-            document.getElementById('user-display').innerText = nome;
-            aplicarCores(); atualizarMiniAvatar(); aba('gastos');
-        }
+    // --- PEDIDOS ---
+    function popularEmpresas() {
+        const sel = document.getElementById('selEmpresa');
+        sel.innerHTML = '<option value="">Selecione...</option>';
+        db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
+    }
+    function addItemTemp() {
+        const n = document.getElementById('pProdNome').value;
+        const u = document.getElementById('pProdUn').value;
+        if(n && u) { listaTemp.push({nome: n, un: parseInt(u)}); renderTemp(); }
+    }
+    function renderTemp() { document.getElementById('listaTemp').innerHTML = listaTemp.map(i => `<div>${i.nome} (${i.un})</div>`).join(""); }
+    function salvarPedidoFinal() {
+        const emp = document.getElementById('selEmpresa').value;
+        if(!emp) return alert("Selecione a empresa");
+        db.pedidosPadrao[emp] = [...listaTemp];
+        listaTemp = []; salvar(); document.getElementById('view-novo-pedido').style.display='none'; gerarSugestao();
+    }
+    function gerarSugestao() {
+        const emp = document.getElementById('selEmpresa').value;
+        const area = document.getElementById('areaSugestao');
+        if(!emp || !db.pedidosPadrao[emp]) { area.innerHTML = ""; return; }
+        let html = `<div class="sugestao-box"><strong>Sugestão ${emp}:</strong><br>`;
+        db.pedidosPadrao[emp].forEach((it, idx) => {
+            html += `<div style="margin:8px 0">${it.nome} (Meta: ${it.un})<br>Tenho: <input type="number" style="width:50px" oninput="document.getElementById('r_${idx}').innerText = Math.max(0, ${it.un} - this.value)"> -> Pedir: <b id="r_${idx}">${it.un}</b></div>`;
+        });
+        area.innerHTML = html + "</div>";
+    }
 
-        function aba(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('btn-' + id).classList.add('active');
-            if(id === 'gastos') renderFinanceiro();
-            if(id === 'pedidos') popularEmpresas();
-            if(id === 'vencidos') renderVencidos();
-            if(id === 'ajustes') carregarAjustes();
-        }
-
-        function renderFinanceiro() {
-            const p = db.perfis[logado];
-            if(!p.meta) { document.getElementById('financeiro-ok').style.display='none'; document.getElementById('financeiro-setup').style.display='block'; }
-            else {
-                document.getElementById('financeiro-ok').style.display='block'; document.getElementById('financeiro-setup').style.display='none';
-                document.getElementById('valMeta').innerText = p.meta.toFixed(2);
-                document.getElementById('totalG').innerText = "R$ " + p.gastos.toFixed(2);
-                document.getElementById('restaG').innerText = "R$ " + (p.meta - p.gastos).toFixed(2);
+    // --- VENCIMENTOS (LÓGICA DO USUÁRIO) ---
+    function addVenc() {
+        const n = document.getElementById('vNome').value;
+        const q = parseInt(document.getElementById('vQtd').value) || 0;
+        const p = parseFloat(document.getElementById('vPreco').value) || 0;
+        const d = document.getElementById('vData').value;
+        if(n && d) { db.vencimentos.push({ n, q, p, d }); salvar(); renderVenc(); }
+    }
+    function renderVenc() {
+        const lista = document.getElementById('listaV');
+        lista.innerHTML = "";
+        const hoje = new Date();
+        db.vencimentos.sort((a,b) => new Date(a.d) - new Date(b.d));
+        db.vencimentos.forEach((it, i) => {
+            const dataV = new Date(it.d);
+            const diff = Math.ceil((dataV - hoje) / (1000 * 60 * 60 * 24));
+            let classe = "";
+            if (diff <= 10) classe = "vencido";
+            else if (diff <= 15) classe = "alerta-laranja";
+            if (classe === "") {
+                if (it.p < 5 && it.q < 15) classe = "alerta-laranja";
+                if (it.p > 5 && it.q === 15 && diff <= 15) classe = "alerta-laranja";
             }
-        }
-        function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
-        function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value=''; } }
-
-        function popularEmpresas() {
-            const sel = document.getElementById('selEmpresa');
-            sel.innerHTML = '<option value="">Selecione...</option>';
-            db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
-        }
-
-        function abrirCadastroPedido() {
-            const emp = document.getElementById('selEmpresa').value;
-            if(!emp) return alert("Selecione uma empresa!");
-            document.getElementById('view-novo-pedido').style.display = 'block';
-            listaTemp = db.pedidosPadrao[emp] ? [...db.pedidosPadrao[emp]] : [];
-            renderTemp();
-        }
-        function addItemTemp() {
-            const n = document.getElementById('pProdNome').value;
-            const u = document.getElementById('pProdUn').value;
-            if(n && u) { listaTemp.push({nome: n, un: parseInt(u)}); renderTemp(); }
-        }
-        function renderTemp() {
-            document.getElementById('listaTemp').innerHTML = listaTemp.map((i, idx) => `<div class="item-lista"><span>${i.nome} (${i.un})</span><button onclick="listaTemp.splice(${idx},1);renderTemp()">X</button></div>`).join("");
-        }
-        function salvarPedidoFinal() {
-            const emp = document.getElementById('selEmpresa').value;
-            db.pedidosPadrao[emp] = [...listaTemp];
-            salvar(); document.getElementById('view-novo-pedido').style.display='none'; gerarSugestao();
-        }
-        function gerarSugestao() {
-            const emp = document.getElementById('selEmpresa').value;
-            const area = document.getElementById('areaSugestao');
-            if(!emp || !db.pedidosPadrao[emp]) return;
-            let html = `<div class="sugestao-box"><strong>🛒 Pedido ${emp}:</strong><br>`;
-            db.pedidosPadrao[emp].forEach((it, idx) => {
-                html += `<div style="margin-top:10px">${it.nome} (Meta: ${it.un})<br>Tenho: <input type="number" style="width:50px" oninput="document.getElementById('r_${idx}').innerText = Math.max(0, ${it.un} - this.value)"> -> Pedir: <b id="r_${idx}">${it.un}</b></div>`;
-            });
-            area.innerHTML = html + "</div>";
-        }
-
-        // --- VENCIDOS (NOVA LÓGICA) ---
-        function addVencido() {
-            const n = document.getElementById('vencNome').value;
-            const u = document.getElementById('vencUn').value || 0;
-            const v = document.getElementById('vencValor').value || 0;
-            const d = document.getElementById('vencData').value;
-            if(n && d) { 
-                db.vencidos.push({nome: n, un: u, valor: parseFloat(v), data: d}); 
-                salvar(); renderVencidos(); 
-                document.getElementById('vencNome').value = "";
-                document.getElementById('vencUn').value = "";
-                document.getElementById('vencValor').value = "";
-            }
-        }
-        function renderVencidos() {
-            const hoje = new Date();
-            db.vencidos.sort((a,b) => new Date(a.data) - new Date(b.data));
-            document.getElementById('listaVencidos').innerHTML = db.vencidos.map((v, idx) => {
-                const prazo = new Date(v.data);
-                const classe = prazo < hoje ? 'vencido' : '';
-                return `
-                <div class="item-lista ${classe}">
-                    <div>
-                        <strong>${v.nome}</strong>
-                        <span class="info-venc">${v.un} un | R$ ${v.valor.toFixed(2)}</span>
-                        <small>${v.data.split('-').reverse().join('/')}</small>
-                    </div>
-                    <button onclick="delVenc(${idx})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold">X</button>
+            const destaque = (i === 0 && diff <= 15) ? "urgente" : "";
+            lista.innerHTML += `
+                <div class="item-vencimento ${classe} ${destaque}">
+                    <span><b>${it.n}</b> (${it.q} un)<br>
+                    <small>R$ ${it.p.toFixed(2)} | Venc: ${it.d.split('-').reverse().join('/')}</small></span>
+                    <button onclick="delV(${i})" style="background:none; border:none; cursor:pointer;">❌</button>
                 </div>`;
-            }).join("");
-        }
-        function delVenc(idx) { db.vencidos.splice(idx, 1); salvar(); renderVencidos(); }
+        });
+    }
+    function delV(i) { db.vencimentos.splice(i,1); salvar(); renderVenc(); }
 
-        function carregarAjustes() {
-            const p = db.perfis[logado];
-            document.getElementById('cfgNome').value = logado;
-            document.getElementById('cfgFoto').value = p.foto;
-            document.getElementById('cfgBg').value = p.cores.bg;
-            document.getElementById('cfgCard').value = p.cores.card;
-            previewCor();
-        }
-        function previewCor() {
-            document.getElementById('previewBg').style.backgroundColor = document.getElementById('cfgBg').value;
-            document.getElementById('previewCard').style.backgroundColor = document.getElementById('cfgCard').value;
-        }
-        function salvarCores() {
-            db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
-            db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
-            salvar(); aplicarCores();
-        }
-        function aplicarCores() {
-            const c = db.perfis[logado].cores;
-            document.body.style.backgroundColor = c.bg;
-            document.documentElement.style.setProperty('--bg-container', c.card);
-        }
-        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); }
-        function atualizarMiniAvatar() {
-            const f = db.perfis[logado].foto;
-            const m = document.getElementById('mini-avatar');
-            m.style.backgroundImage = f ? `url('${f}')` : "none";
-            m.innerText = f ? "" : logado[0];
-        }
-        function trocarNome() {
-            const n = document.getElementById('cfgNome').value;
-            if(n && n !== logado) { db.perfis[n] = db.perfis[logado]; delete db.perfis[logado]; salvar(); location.reload(); }
-        }
-        function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); } }
-        function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-        window.onload = renderPerfis;
-    </script>
+    // --- AJUSTES ---
+    function carregarAjustes() {
+        const p = db.perfis[logado];
+        document.getElementById('cfgFoto').value = p.foto;
+        document.getElementById('cfgBg').value = p.cores.bg;
+        document.getElementById('cfgCard').value = p.cores.card;
+    }
+    function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); }
+    function salvarCores() {
+        db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
+        db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
+        salvar(); aplicarCores();
+    }
+    function aplicarCores() {
+        const c = db.perfis[logado].cores;
+        document.body.style.backgroundColor = c.bg;
+        document.documentElement.style.setProperty('--bg-container', c.card);
+    }
+    function atualizarMiniAvatar() {
+        const f = db.perfis[logado].foto;
+        const m = document.getElementById('mini-avatar');
+        m.style.backgroundImage = f ? `url('${f}')` : "none";
+        m.innerText = f ? "" : logado[0];
+        m.style.display = "flex"; m.style.alignItems = "center"; m.style.justifyContent = "center"; m.style.color = "white";
+    }
+    function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); } }
+    function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+    window.onload = renderPerfis;
+</script>
 </body>
 </html>
