@@ -32,8 +32,10 @@
             background-color: #333;
         }
 
-        /* --- NAVBAR --- */
+        /* --- INTERFACE PRINCIPAL --- */
         #interface-principal { display: none; }
+        .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
+        
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 5%; background: rgba(0,0,0,0.9);
@@ -43,9 +45,8 @@
             background: none; border: none; color: #aaa; margin-left: 15px;
             cursor: pointer; font-size: 1em; font-weight: bold;
         }
-        .nav-links button.active { color: white; border-bottom: 2px solid #e50914; }
+        .nav-links button:hover { color: white; }
 
-        /* --- CONTEUDO --- */
         .container {
             max-width: 480px; margin: 30px auto; background: var(--bg-container);
             padding: 25px; border-radius: 12px; color: var(--cor-texto);
@@ -60,13 +61,11 @@
             border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
         }
 
-        /* --- CARDS DE PEDIDO --- */
         .sugestao-box {
             background: #eef7ff; padding: 12px; border-radius: 8px; margin-top: 10px;
             border: 1px dashed #2196f3;
         }
         .sub-item { font-size: 0.9em; padding: 5px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; }
-
         .quadrado-cor { width: 40px; height: 40px; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; position: relative; overflow: hidden; display: inline-block; vertical-align: middle; }
         .quadrado-cor input[type="color"] { position: absolute; top: -10px; left: -10px; width: 60px; height: 60px; cursor: pointer; }
     </style>
@@ -74,15 +73,17 @@
 <body>
 
     <div id="tela-perfis">
-        <h1>Quem está usando?</h1>
+        <h1 style="font-size: 2.5em;">Quem está usando?</h1>
         <div class="perfis-container" id="lista-avatars"></div>
     </div>
 
     <div id="interface-principal">
+        <button class="btn-voltar" onclick="location.reload()">← Trocar Usuário</button>
+        
         <nav class="navbar">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div id="mini-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
-                <h2 id="user-display" style="margin:0; font-size: 1.2em;"></h2>
+                <div id="mini-avatar" style="width:45px; height:45px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
+                <h2 id="user-display" style="margin:0"></h2>
             </div>
             <div class="nav-links">
                 <button onclick="aba('gastos')">Gastos</button>
@@ -98,7 +99,7 @@
                 <input type="number" id="inGasto" placeholder="Valor do gasto">
                 <button class="btn-acao" onclick="addGasto()">Registrar</button>
                 <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                    <p>Total: <span id="totalG">0</span> | Resta: <b id="restaG">0</b></p>
+                    <p>Total: <span id="totalG">0</span> | Restante: <b id="restaG">0</b></p>
                 </div>
             </div>
             <div id="financeiro-setup" style="display:none;">
@@ -128,19 +129,16 @@
 
         <section id="ajustes" class="container">
             <h2>Ajustes</h2>
-            
             <label>Trocar Meu Nome:</label>
             <input type="text" id="cfgNome" placeholder="Novo nome">
             <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Novo Nome</button>
 
             <hr style="margin:20px 0; opacity:0.1">
-
             <label>Cadastrar Empresa:</label>
             <input type="text" id="newEmpresa" placeholder="Nome da empresa">
             <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Salvar Empresa</button>
             
             <hr style="margin:20px 0; opacity:0.1">
-            
             <label>Foto de Perfil (URL):</label>
             <input type="text" id="cfgFoto" placeholder="Link da imagem">
             <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
@@ -150,16 +148,15 @@
                 Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
             </div>
             <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
-            <button class="btn-acao" style="background:#666" onclick="location.reload()">Sair / Trocar Usuário</button>
+            <button class="btn-acao" style="background:#666" onclick="zerarDados()">Zerar Gastos</button>
         </section>
     </div>
 
     <script>
         let logado = "";
         let listaTemp = [];
-        const DB_KEY = 'casa_premium_v5';
+        const DB_KEY = 'casa_premium_vFinal';
 
-        // DATABASE INICIAL COM NATHALIA INCLUÍDA
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
             perfis: {
                 "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
@@ -194,13 +191,9 @@
         function trocarNome() {
             const novoNome = document.getElementById('cfgNome').value.trim();
             if(!novoNome || novoNome === logado) return alert("Digite um nome válido.");
-            
-            // Move os dados para o novo nome
             db.perfis[novoNome] = db.perfis[logado];
             delete db.perfis[logado];
-            
             salvar();
-            alert("Nome alterado com sucesso!");
             location.reload();
         }
 
@@ -209,6 +202,7 @@
             document.getElementById(id).classList.add('active');
             if(id === 'pedidos') popularEmpresas();
             if(id === 'ajustes') carregarAjustes();
+            if(id === 'gastos') renderFinanceiro();
         }
 
         function popularEmpresas() {
@@ -224,7 +218,7 @@
                 area.innerHTML = "<p style='font-size:0.8em; color:gray'>Sem histórico.</p>";
                 return;
             }
-            let html = `<div class="sugestao-box"><strong>Sugestão:</strong><br><br>`;
+            let html = `<div class="sugestao-box"><strong>Baseado no último pedido:</strong><br><br>`;
             db.pedidosPadrao[emp].forEach((it, idx) => {
                 html += `<div style="margin-bottom:10px"><small>${it.nome} (${it.un} un)</small><br><input type="number" placeholder="Tem hoje?" oninput="document.getElementById('res_${idx}').innerText = Math.max(0, ${it.un} - this.value)" style="padding:5px; width:80px"><span style="font-weight:bold; color:#e50914; margin-left:10px">Pedir: <span id="res_${idx}">0</span></span></div>`;
             });
@@ -319,10 +313,13 @@
         function atualizarMiniAvatar() {
             const f = db.perfis[logado].foto;
             const m = document.getElementById('mini-avatar');
-            m.style.backgroundImage = f ? `url('${f}')` : "none";
-            m.innerText = f ? "" : logado[0];
+            if(m) {
+                m.style.backgroundImage = f ? `url('${f}')` : "none";
+                m.innerText = f ? "" : logado[0];
+            }
         }
 
+        function zerarDados() { if(confirm("Zerar gastos?")) { db.perfis[logado].meta = 0; db.perfis[logado].gastos = 0; salvar(); renderFinanceiro(); } }
         function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
         window.onload = renderPerfis;
     </script>
