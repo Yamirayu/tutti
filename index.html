@@ -29,19 +29,14 @@
         input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button.btn-acao { padding: 12px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
 
-        /* Vencimentos e Alertas */
-        .item-vencimento {
-            padding: 15px; margin: 10px 0; border-radius: 8px;
-            border-left: 8px solid #ddd; background: #f9f9f9;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #333;
-        }
+        .item-vencimento { padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 8px solid #ddd; background: #f9f9f9; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #333; }
         .urgente { border: 2px solid #e50914; position: relative; }
         .urgente::before { content: "⚠️ PRIORIDADE"; position: absolute; top: -10px; left: 10px; background: #e50914; color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
         .vencido { background-color: #ffcccc !important; border-left-color: #ff0000 !important; }
         .alerta-laranja { background-color: #ffedcc !important; border-left-color: #ffa500 !important; }
 
-        .sugestao-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
+        .sugestao-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; position: relative; }
+        .btn-limpar-sugestao { background: #666; color: white; border: none; padding: 5px 10px; font-size: 0.7em; cursor: pointer; border-radius: 3px; margin-top: 10px; width: 100%; }
     </style>
 </head>
 <body>
@@ -87,11 +82,11 @@
             <h2>📦 Pedidos</h2>
             <select id="selEmpresa" onchange="gerarSugestao()"><option value="">Selecione a Empresa...</option></select>
             <div id="areaSugestao"></div>
-            <button class="btn-acao" style="background:#f39c12" onclick="document.getElementById('view-novo-pedido').style.display='block'">+ Cadastrar Padrão de Pedido</button>
+            <button class="btn-acao" style="background:#f39c12; margin-top: 20px;" onclick="document.getElementById('view-novo-pedido').style.display='block'">+ Cadastrar Padrão de Pedido</button>
             <div id="view-novo-pedido" style="display:none; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">
                 <input type="text" id="pProdNome" placeholder="Produto">
                 <input type="number" id="pProdUn" placeholder="Meta de estoque">
-                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir</button>
+                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir Item</button>
                 <div id="listaTemp" style="margin:10px 0"></div>
                 <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar Padrão</button>
             </div>
@@ -112,7 +107,7 @@
         <section id="ajustes" class="container">
             <h2>Ajustes</h2>
             <input type="text" id="cfgFoto" placeholder="URL da Foto">
-            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto</button>
+            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto Perfil</button>
             <div style="margin:15px 0">
                 Fundo: <input type="color" id="cfgBg" onchange="salvarCores()"> 
                 Card: <input type="color" id="cfgCard" onchange="salvarCores()">
@@ -120,7 +115,9 @@
             <hr>
             <input type="text" id="newEmpresa" placeholder="Nova Empresa">
             <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar Empresa</button>
-            <button class="btn-acao" style="background:#666; margin-top:30px" onclick="zerarDados()">Zerar Meta e Gastos</button>
+            <div id="listaEmpresasExcluir" style="margin-top:10px;"></div>
+            <hr>
+            <button class="btn-acao" style="background:#666; margin-top:20px" onclick="zerarDados()">Zerar Meta e Gastos</button>
         </section>
     </div>
 
@@ -169,7 +166,6 @@
         if(id === 'pedidos') popularEmpresas();
     }
 
-    // --- FINANCEIRO ---
     function renderFinanceiro() {
         const p = db.perfis[logado];
         if(p.meta === 0) {
@@ -190,7 +186,7 @@
     // --- PEDIDOS ---
     function popularEmpresas() {
         const sel = document.getElementById('selEmpresa');
-        sel.innerHTML = '<option value="">Selecione...</option>';
+        sel.innerHTML = '<option value="">Selecione a Empresa...</option>';
         db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
     }
     function addItemTemp() {
@@ -208,15 +204,22 @@
     function gerarSugestao() {
         const emp = document.getElementById('selEmpresa').value;
         const area = document.getElementById('areaSugestao');
-        if(!emp || !db.pedidosPadrao[emp]) { area.innerHTML = ""; return; }
+        if(!emp || !db.pedidosPadrao[emp] || db.pedidosPadrao[emp].length === 0) { area.innerHTML = ""; return; }
         let html = `<div class="sugestao-box"><strong>Sugestão ${emp}:</strong><br>`;
         db.pedidosPadrao[emp].forEach((it, idx) => {
             html += `<div style="margin:8px 0">${it.nome} (Meta: ${it.un})<br>Tenho: <input type="number" style="width:50px" oninput="document.getElementById('r_${idx}').innerText = Math.max(0, ${it.un} - this.value)"> -> Pedir: <b id="r_${idx}">${it.un}</b></div>`;
         });
+        html += `<button class="btn-limpar-sugestao" onclick="excluirSugestao('${emp}')">Excluir Padrão de Pedido</button>`;
         area.innerHTML = html + "</div>";
     }
+    function excluirSugestao(emp) {
+        if(confirm(`Excluir todos os itens salvos para ${emp}?`)) {
+            delete db.pedidosPadrao[emp];
+            salvar(); gerarSugestao();
+        }
+    }
 
-    // --- VENCIMENTOS (LÓGICA DO USUÁRIO) ---
+    // --- VENCIMENTOS ---
     function addVenc() {
         const n = document.getElementById('vNome').value;
         const q = parseInt(document.getElementById('vQtd').value) || 0;
@@ -256,8 +259,14 @@
         document.getElementById('cfgFoto').value = p.foto;
         document.getElementById('cfgBg').value = p.cores.bg;
         document.getElementById('cfgCard').value = p.cores.card;
+        
+        const list = document.getElementById('listaEmpresasExcluir');
+        list.innerHTML = "<strong>Empresas Cadastradas:</strong><br>";
+        db.empresas.forEach((e, i) => {
+            list.innerHTML += `<div style='display:flex; justify-content:space-between; margin-top:5px;'>${e} <button onclick='excluirEmpresa(${i})' style='color:red; background:none; border:none; cursor:pointer'>Excluir</button></div>`;
+        });
     }
-    function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); }
+    function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto atualizada!"); }
     function salvarCores() {
         db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
         db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
@@ -273,9 +282,10 @@
         const m = document.getElementById('mini-avatar');
         m.style.backgroundImage = f ? `url('${f}')` : "none";
         m.innerText = f ? "" : logado[0];
-        m.style.display = "flex"; m.style.alignItems = "center"; m.style.justifyContent = "center"; m.style.color = "white";
+        m.style.display = "flex"; m.style.alignItems = "center"; m.style.justifyContent = "center"; m.style.color = "white"; m.style.fontWeight = "bold";
     }
-    function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); } }
+    function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); carregarAjustes(); document.getElementById('newEmpresa').value = ""; } }
+    function excluirEmpresa(i) { if(confirm("Remover esta empresa?")) { db.empresas.splice(i,1); salvar(); carregarAjustes(); } }
     function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
     window.onload = renderPerfis;
 </script>
