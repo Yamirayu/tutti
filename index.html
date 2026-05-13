@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -5,70 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizador Premium</title>
     <style>
-        :root {
-            --bg-body: #141414;
-            --bg-container: #ffffff;
-            --cor-texto: #333333;
-        }
-
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: var(--bg-body); 
-            color: white; margin: 0; transition: 0.4s;
-        }
-
+        :root { --bg-body: #141414; --bg-container: #ffffff; --cor-texto: #333333; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: white; margin: 0; transition: 0.4s; }
+        
         /* --- TELA DE PERFIS --- */
-        #tela-perfis {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
-        }
+        #tela-perfis { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
         .perfis-container { display: flex; gap: 30px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
         .perfil-card { cursor: pointer; text-align: center; width: 120px; transition: 0.3s; }
-        .perfil-card:hover { transform: scale(1.1); }
-        
-        .avatar {
-            width: 120px; height: 120px; border-radius: 8px;
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            border: 3px solid transparent; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: center; font-size: 40px;
-            background-color: #333; color: white;
-        }
+        .avatar { width: 120px; height: 120px; border-radius: 8px; background-size: cover; background-position: center; background-color: #333; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; }
 
-        /* --- INTERFACE PRINCIPAL --- */
+        /* --- INTERFACE --- */
         #interface-principal { display: none; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
-        
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 5%; background: rgba(0,0,0,0.9);
-            position: sticky; top: 0; z-index: 100;
-        }
-        .nav-links button {
-            background: none; border: none; color: #aaa; margin-left: 15px;
-            cursor: pointer; font-size: 1em; font-weight: bold;
-        }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 100; }
+        .nav-links button { background: none; border: none; color: #aaa; margin-left: 15px; cursor: pointer; font-weight: bold; }
         .nav-links button.active { color: white; border-bottom: 2px solid #e50914; }
 
-        .container {
-            max-width: 480px; margin: 30px auto; background: var(--bg-container);
-            padding: 25px; border-radius: 12px; color: var(--cor-texto);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .container { max-width: 480px; margin: 20px auto; background: var(--bg-container); padding: 25px; border-radius: 12px; color: var(--cor-texto); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         section { display: none; }
         section.active { display: block; }
 
         input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button.btn-acao { 
-            padding: 12px; background: #e50914; color: white; 
-            border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
-        }
+        button.btn-acao { padding: 12px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
 
-        /* --- PEDIDOS --- */
-        .sugestao-box, .historico-card { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; color: #333; }
-        .sub-item { font-size: 0.9em; padding: 5px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; }
-        
-        /* --- CORES --- */
+        .item-lista { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .vencido { color: #e50914; font-weight: bold; }
+        .sugestao-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
         .quadrado-cor { width: 45px; height: 45px; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; position: relative; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 10px; }
-        .quadrado-cor input[type="color"] { position: absolute; top: -10px; left: -10px; width: 70px; height: 70px; cursor: pointer; border: none; }
+        .quadrado-cor input { position: absolute; top: -10px; left: -10px; width: 70px; height: 70px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -80,88 +45,84 @@
 
     <div id="interface-principal">
         <button class="btn-voltar" onclick="location.reload()">← Trocar Usuário</button>
-        
         <nav class="navbar">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div id="mini-avatar" style="width:45px; height:45px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
-                <h2 id="user-display" style="margin:0"></h2>
+                <div id="mini-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
+                <h2 id="user-display" style="margin:0; font-size: 1.1em;"></h2>
             </div>
             <div class="nav-links">
-                <button id="btn-aba-gastos" onclick="aba('gastos')">Gastos</button>
-                <button id="btn-aba-pedidos" onclick="aba('pedidos')">Pedidos</button>
-                <button id="btn-aba-ajustes" onclick="aba('ajustes')">Ajustes</button>
+                <button id="btn-gastos" onclick="aba('gastos')">Gastos</button>
+                <button id="btn-pedidos" onclick="aba('pedidos')">Pedidos</button>
+                <button id="btn-vencidos" onclick="aba('vencidos')">Vencidos</button>
+                <button id="btn-ajustes" onclick="aba('ajustes')">Ajustes</button>
             </div>
         </nav>
 
         <section id="gastos" class="container">
             <h2>Meus Gastos</h2>
-            <div id="financeiro-ok" style="display:none;">
-                <p style="font-weight: bold; color: #666;">Meta Mensal: R$ <span id="valMeta">0</span></p>
-                <input type="number" id="inGasto" placeholder="Valor do gasto (ex: 50.00)">
-                <button class="btn-acao" onclick="addGasto()">Registrar Gasto</button>
-                
-                <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                    <p style="margin: 5px 0;">Total Gasto: <span id="totalG" style="font-weight: bold;">R$ 0,00</span></p>
-                    <p style="margin: 5px 0;">Ainda Resta: <b id="restaG" style="color: #27ae60;">R$ 0,00</b></p>
+            <div id="financeiro-ok">
+                <p>Meta: R$ <span id="valMeta">0</span></p>
+                <input type="number" id="inGasto" placeholder="Valor do gasto">
+                <button class="btn-acao" onclick="addGasto()">Registrar</button>
+                <div style="margin-top: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                    <p>Total: <span id="totalG">0</span> | Resta: <b id="restaG">0</b></p>
                 </div>
-                <button class="btn-acao" style="background: #999; font-size: 0.8em; margin-top: 20px;" onclick="resetarMetaLocal()">Alterar Meta</button>
             </div>
-
             <div id="financeiro-setup" style="display:none;">
-                <p>Você ainda não definiu uma meta para este perfil.</p>
-                <input type="number" id="inMeta" placeholder="Qual sua meta de gastos?">
-                <button class="btn-acao" onclick="setMeta()">Salvar Minha Meta</button>
+                <input type="number" id="inMeta" placeholder="Definir meta">
+                <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
             </div>
         </section>
 
         <section id="pedidos" class="container">
             <h2>📦 Pedidos</h2>
-            <select id="selEmpresa" onchange="gerarSugestao()">
-                <option value="">Selecione a Empresa...</option>
-            </select>
-            <div id="areaSugestao"></div>
-            <button class="btn-acao" style="background:#f39c12" onclick="toggleNovoPedido()">+ Adicionar Pedido Feito</button>
+            <select id="selEmpresa" onchange="gerarSugestao()"><option value="">Selecione...</option></select>
             
-            <div id="view-novo-pedido" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
+            <div id="areaSugestao"></div>
+
+            <button class="btn-acao" style="background:#f39c12" onclick="document.getElementById('view-novo-pedido').style.display='block'">+ Novo Pedido Feito</button>
+            
+            <div id="view-novo-pedido" style="display:none; margin-top:15px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <p><b>Cadastre o estoque padrão desta empresa:</b></p>
                 <input type="text" id="pProdNome" placeholder="Produto">
-                <input type="number" id="pProdUn" placeholder="Quantidade">
-                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">+ Incluir Item</button>
-                <div id="listaTemp" style="margin:10px 0"></div>
-                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar e Gerar Histórico</button>
+                <input type="number" id="pProdUn" placeholder="Quantidade que deve ter (Padrão)">
+                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir no Padrão</button>
+                <div id="listaTemp" style="margin:10px 0; font-size: 0.9em;"></div>
+                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar Padrão para Sugestão</button>
             </div>
+        </section>
+
+        <section id="vencidos" class="container">
+            <h2>⚠️ Controle de Vencidos</h2>
+            <input type="text" id="vencNome" placeholder="Nome do produto">
+            <input type="date" id="vencData">
+            <button class="btn-acao" onclick="addVencido()">Cadastrar Vencimento</button>
             <hr style="margin:20px 0; opacity:0.1">
-            <h3>📜 Últimos Pedidos</h3>
-            <div id="listaHistorico"></div>
+            <div id="listaVencidos"></div>
         </section>
 
         <section id="ajustes" class="container">
             <h2>Ajustes</h2>
-            <label>Nome do Perfil:</label>
-            <input type="text" id="cfgNome">
-            <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Novo Nome</button>
+            <input type="text" id="cfgNome" placeholder="Mudar Nome">
+            <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Nome</button>
             <hr>
-            <label>Foto (Link da Imagem):</label>
-            <input type="text" id="cfgFoto" placeholder="Cole a URL da imagem aqui">
-            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
-            <hr>
-            <label>Cores do App:</label>
-            <div style="margin: 15px 0;">
+            <input type="text" id="cfgFoto" placeholder="Link da Foto">
+            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto</button>
+            <div style="margin:15px 0">
                 Fundo: <div class="quadrado-cor" id="previewBg"><input type="color" id="cfgBg" oninput="previewCor()"></div>
                 Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
             </div>
             <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
             <hr>
-            <label>Gerenciar Empresas:</label>
-            <input type="text" id="newEmpresa" placeholder="Nome da empresa">
-            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar</button>
-            <button class="btn-acao" style="background:#666; margin-top:40px" onclick="zerarTudo()">Limpar Tudo deste Perfil</button>
+            <input type="text" id="newEmpresa" placeholder="Nova Empresa">
+            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar Empresa</button>
         </section>
     </div>
 
     <script>
         let logado = "";
         let listaTemp = [];
-        const DB_KEY = 'casa_premium_v7';
+        const DB_KEY = 'casa_premium_v9';
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
             perfis: {
@@ -171,7 +132,7 @@
             },
             empresas: ["Coca-Cola"],
             pedidosPadrao: {},
-            historico: []
+            vencidos: []
         };
 
         function renderPerfis() {
@@ -188,128 +149,91 @@
             document.getElementById('tela-perfis').style.display = 'none';
             document.getElementById('interface-principal').style.display = 'block';
             document.getElementById('user-display').innerText = nome;
-            aplicarCores(); 
-            atualizarMiniAvatar(); 
-            aba('gastos'); // Isso já chama o renderFinanceiro()
+            aplicarCores(); atualizarMiniAvatar(); aba('gastos');
         }
 
-        function aba(nomeAba) {
+        function aba(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(nomeAba).classList.add('active');
-            document.getElementById('btn-aba-' + nomeAba).classList.add('active');
-
-            if(nomeAba === 'gastos') renderFinanceiro();
-            if(nomeAba === 'pedidos') { popularEmpresas(); renderHistorico(); }
-            if(nomeAba === 'ajustes') carregarAjustes();
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active');
+            if(id === 'gastos') renderFinanceiro();
+            if(id === 'pedidos') popularEmpresas();
+            if(id === 'vencidos') renderVencidos();
+            if(id === 'ajustes') carregarAjustes();
         }
 
-        // --- LÓGICA DE GASTOS (CORRIGIDA) ---
+        // --- GASTOS ---
         function renderFinanceiro() {
             const p = db.perfis[logado];
-            const areaOk = document.getElementById('financeiro-ok');
-            const areaSetup = document.getElementById('financeiro-setup');
-
-            if (!p.meta || p.meta <= 0) {
-                areaOk.style.display = 'none';
-                areaSetup.style.display = 'block';
-            } else {
-                areaOk.style.display = 'block';
-                areaSetup.style.display = 'none';
-                
+            if(!p.meta) { document.getElementById('financeiro-ok').style.display='none'; document.getElementById('financeiro-setup').style.display='block'; }
+            else {
+                document.getElementById('financeiro-ok').style.display='block'; document.getElementById('financeiro-setup').style.display='none';
                 document.getElementById('valMeta').innerText = p.meta.toFixed(2);
                 document.getElementById('totalG').innerText = "R$ " + p.gastos.toFixed(2);
-                
-                let restante = p.meta - p.gastos;
-                const fieldResta = document.getElementById('restaG');
-                fieldResta.innerText = "R$ " + restante.toFixed(2);
-                fieldResta.style.color = restante < 0 ? "#e50914" : "#27ae60";
+                document.getElementById('restaG').innerText = "R$ " + (p.meta - p.gastos).toFixed(2);
             }
         }
+        function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
+        function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value=''; } }
 
-        function setMeta() {
-            const m = parseFloat(document.getElementById('inMeta').value);
-            if(m > 0) {
-                db.perfis[logado].meta = m;
-                salvar();
-                renderFinanceiro();
-            } else {
-                alert("Insira um valor de meta válido!");
-            }
-        }
-
-        function addGasto() {
-            const v = parseFloat(document.getElementById('inGasto').value);
-            if(v > 0) {
-                db.perfis[logado].gastos += v;
-                salvar();
-                renderFinanceiro();
-                document.getElementById('inGasto').value = '';
-            }
-        }
-
-        function resetarMetaLocal() {
-            if(confirm("Deseja alterar sua meta mensal?")) {
-                db.perfis[logado].meta = 0;
-                salvar();
-                renderFinanceiro();
-            }
-        }
-
-        // --- RESTANTE DAS FUNÇÕES ---
+        // --- PEDIDOS COM SOMA ---
         function popularEmpresas() {
             const sel = document.getElementById('selEmpresa');
-            sel.innerHTML = '<option value="">Selecione a Empresa...</option>';
+            sel.innerHTML = '<option value="">Selecione...</option>';
             db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
         }
-
-        function toggleNovoPedido() {
-            const view = document.getElementById('view-novo-pedido');
-            view.style.display = view.style.display === 'none' ? 'block' : 'none';
-        }
-
         function addItemTemp() {
             const n = document.getElementById('pProdNome').value;
             const u = document.getElementById('pProdUn').value;
-            if(n && u) {
-                listaTemp.push({nome: n, un: parseInt(u)});
-                document.getElementById('pProdNome').value = ""; document.getElementById('pProdUn').value = "";
-                renderTemp();
-            }
+            if(n && u) { listaTemp.push({nome: n, un: parseInt(u)}); renderTemp(); }
         }
-
-        function renderTemp() {
-            document.getElementById('listaTemp').innerHTML = listaTemp.map(i => `<div class="sub-item">${i.nome} <span>${i.un} un</span></div>`).join("");
-        }
-
+        function renderTemp() { document.getElementById('listaTemp').innerHTML = listaTemp.map(i => `<div>${i.nome} (Meta: ${i.un})</div>`).join(""); }
+        
         function salvarPedidoFinal() {
             const emp = document.getElementById('selEmpresa').value;
-            if(!emp || listaTemp.length === 0) return alert("Preencha a empresa e os itens!");
-            db.historico.unshift({ empresa: emp, itens: [...listaTemp], data: new Date().toLocaleDateString('pt-BR') });
+            if(!emp) return alert("Selecione a empresa");
             db.pedidosPadrao[emp] = [...listaTemp];
-            listaTemp = []; salvar(); toggleNovoPedido(); renderHistorico(); gerarSugestao();
-        }
-
-        function renderHistorico() {
-            document.getElementById('listaHistorico').innerHTML = db.historico.slice(0, 5).map(p => `
-                <div class="historico-card">
-                    <div style="display:flex; justify-content:space-between"><b>${p.empresa}</b> <small>${p.data}</small></div>
-                    <div style="font-size:0.85em; color:#555; margin-top:5px">${p.itens.map(i => i.nome + " ("+i.un+")").join(", ")}</div>
-                </div>`).join("");
+            listaTemp = []; salvar(); 
+            document.getElementById('view-novo-pedido').style.display='none'; 
+            gerarSugestao();
         }
 
         function gerarSugestao() {
             const emp = document.getElementById('selEmpresa').value;
             const area = document.getElementById('areaSugestao');
-            if(!emp || !db.pedidosPadrao[emp]) { area.innerHTML = ""; return; }
-            let html = `<div class="sugestao-box"><strong>Sugestão baseada no último pedido:</strong><br><br>`;
+            if(!emp || !db.pedidosPadrao[emp]) { area.innerHTML = "<p style='color:gray; font-size:0.8em;'>Cadastre o padrão desta empresa abaixo.</p>"; return; }
+            
+            let html = `<div class="sugestao-box"><strong>🛒 Sugestão para ${emp}:</strong><br><br>`;
             db.pedidosPadrao[emp].forEach((it, idx) => {
-                html += `<div style="margin-bottom:8px"><small>${it.nome} (${it.un})</small><br><input type="number" placeholder="Tem?" oninput="document.getElementById('res_${idx}').innerText = Math.max(0, ${it.un} - this.value)" style="padding:5px; width:70px"> <span style="color:#e50914; font-weight:bold">Pedir: <span id="res_${idx}">0</span></span></div>`;
+                html += `
+                <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                    <small>${it.nome} (Meta: ${it.un})</small><br>
+                    Tenho: <input type="number" style="width:60px; padding:2px" oninput="document.getElementById('r_${idx}').innerText = Math.max(0, ${it.un} - this.value)"> 
+                    -> Pedir: <b id="r_${idx}" style="color:#e50914">${it.un}</b>
+                </div>`;
             });
             area.innerHTML = html + "</div>";
         }
 
+        // --- VENCIDOS ---
+        function addVencido() {
+            const n = document.getElementById('vencNome').value;
+            const d = document.getElementById('vencData').value;
+            if(n && d) { db.vencidos.push({nome: n, data: d}); salvar(); renderVencidos(); }
+        }
+        function renderVencidos() {
+            const hoje = new Date();
+            db.vencidos.sort((a,b) => new Date(a.data) - new Date(b.data));
+            document.getElementById('listaVencidos').innerHTML = db.vencidos.map((v, idx) => {
+                const prazo = new Date(v.data);
+                const classe = prazo < hoje ? 'vencido' : '';
+                return `<div class="item-lista ${classe}"><span>${v.nome}</span> <span>${v.data.split('-').reverse().join('/')} <button onclick="delVenc(${idx})" style="color:red; background:none; border:none; cursor:pointer">X</button></span></div>`;
+            }).join("");
+        }
+        function delVenc(idx) { db.vencidos.splice(idx, 1); salvar(); renderVencidos(); }
+
+        // --- AJUSTES ---
         function carregarAjustes() {
             const p = db.perfis[logado];
             document.getElementById('cfgNome').value = logado;
@@ -318,57 +242,32 @@
             document.getElementById('cfgCard').value = p.cores.card;
             previewCor();
         }
-
         function previewCor() {
             document.getElementById('previewBg').style.backgroundColor = document.getElementById('cfgBg').value;
             document.getElementById('previewCard').style.backgroundColor = document.getElementById('cfgCard').value;
         }
-
         function salvarCores() {
             db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
             db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
-            salvar(); aplicarCores(); alert("Cores aplicadas!");
+            salvar(); aplicarCores();
         }
-
         function aplicarCores() {
             const c = db.perfis[logado].cores;
             document.body.style.backgroundColor = c.bg;
             document.documentElement.style.setProperty('--bg-container', c.card);
         }
-
-        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto atualizada!"); }
-        
+        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); }
         function atualizarMiniAvatar() {
             const f = db.perfis[logado].foto;
             const m = document.getElementById('mini-avatar');
             m.style.backgroundImage = f ? `url('${f}')` : "none";
             m.innerText = f ? "" : logado[0];
         }
-
-        function trocarNome() { 
-            const n = document.getElementById('cfgNome').value.trim(); 
-            if(n && n !== logado) { 
-                db.perfis[n] = db.perfis[logado]; 
-                delete db.perfis[logado]; 
-                salvar(); 
-                location.reload(); 
-            } 
+        function trocarNome() {
+            const n = document.getElementById('cfgNome').value;
+            if(n && n !== logado) { db.perfis[n] = db.perfis[logado]; delete db.perfis[logado]; salvar(); location.reload(); }
         }
-
-        function addEmpresa() { 
-            const e = document.getElementById('newEmpresa').value.trim(); 
-            if(e) { db.empresas.push(e); salvar(); popularEmpresas(); alert("Empresa cadastrada!"); } 
-        }
-
-        function zerarTudo() { 
-            if(confirm("Isso apagará seus gastos e sua meta. Continuar?")) { 
-                db.perfis[logado].gastos = 0; 
-                db.perfis[logado].meta = 0; 
-                salvar(); 
-                renderFinanceiro(); 
-            } 
-        }
-
+        function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); } }
         function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
         window.onload = renderPerfis;
     </script>
