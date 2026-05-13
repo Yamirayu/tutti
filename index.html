@@ -157,12 +157,14 @@
     <script>
         let logado = "";
         let listaTemp = [];
-        const DB_KEY = 'casa_premium_v4';
+        const DB_KEY = 'casa_premium_v5';
 
+        // DATABASE INICIAL COM NATHALIA INCLUÍDA
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
             perfis: {
                 "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
-                "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
+                "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+                "Nathalia": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
             },
             empresas: ["Coca-Cola"],
             pedidosPadrao: {}
@@ -191,14 +193,14 @@
 
         function trocarNome() {
             const novoNome = document.getElementById('cfgNome').value.trim();
-            if(!novoNome || novoNome === logado) return alert("Digite um nome válido e diferente.");
+            if(!novoNome || novoNome === logado) return alert("Digite um nome válido.");
             
-            // Copia os dados para o novo nome e deleta o antigo
+            // Move os dados para o novo nome
             db.perfis[novoNome] = db.perfis[logado];
             delete db.perfis[logado];
             
             salvar();
-            alert("Nome alterado! O sistema irá reiniciar.");
+            alert("Nome alterado com sucesso!");
             location.reload();
         }
 
@@ -252,7 +254,7 @@
         function salvarPedidoFinal() {
             const emp = document.getElementById('selEmpresa').value;
             db.pedidosPadrao[emp] = listaTemp;
-            salvar(); alert("Salvo!");
+            salvar(); alert("Estoque padrão atualizado!");
             document.getElementById('view-novo-pedido').style.display = 'none';
             gerarSugestao();
         }
