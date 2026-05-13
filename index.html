@@ -5,24 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizador Premium</title>
     <style>
-        :root { --bg-body: #141414; --bg-container: #ffffff; --cor-texto: #333333; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: white; margin: 0; }
-        #tela-perfis { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        .perfis-container { display: flex; gap: 30px; margin-top: 30px; }
-        .perfil-card { cursor: pointer; text-align: center; width: 100px; transition: 0.3s; }
-        .avatar { width: 100px; height: 100px; border-radius: 8px; background-color: #333; display: flex; align-items: center; justify-content: center; font-size: 30px; background-size: cover; margin-bottom: 10px; }
+        :root {
+            --bg-body: #141414;
+            --bg-container: #ffffff;
+            --cor-texto: #333333;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-body); 
+            color: white; margin: 0; transition: 0.4s;
+        }
+
+        /* --- TELA DE PERFIS --- */
+        #tela-perfis {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        }
+        .perfis-container { display: flex; gap: 30px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+        .perfil-card { cursor: pointer; text-align: center; width: 120px; transition: 0.3s; }
+        .perfil-card:hover { transform: scale(1.1); }
+        
+        .avatar {
+            width: 120px; height: 120px; border-radius: 8px;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            border: 3px solid transparent; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+            background-color: #333; color: white;
+        }
+
+        /* --- INTERFACE PRINCIPAL --- */
         #interface-principal { display: none; }
-        .btn-voltar { background: #333; color: white; border: none; padding: 10px; margin: 10px; border-radius: 5px; cursor: pointer; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(0,0,0,0.9); position: sticky; top: 0; }
-        .nav-links button { background: none; border: none; color: #aaa; margin-left: 15px; cursor: pointer; font-weight: bold; }
-        .container { max-width: 480px; margin: 20px auto; background: var(--bg-container); padding: 25px; border-radius: 12px; color: var(--cor-texto); }
+        .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
+        
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; background: rgba(0,0,0,0.9);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-links button {
+            background: none; border: none; color: #aaa; margin-left: 15px;
+            cursor: pointer; font-size: 1em; font-weight: bold;
+        }
+        .nav-links button:hover { color: white; }
+
+        .container {
+            max-width: 480px; margin: 30px auto; background: var(--bg-container);
+            padding: 25px; border-radius: 12px; color: var(--cor-texto);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
         section { display: none; }
         section.active { display: block; }
+
         input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button.btn-acao { padding: 12px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .sugestao-box, .historico-card { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; color: #333; }
+        button.btn-acao { 
+            padding: 12px; background: #e50914; color: white; 
+            border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
+        }
+
+        /* --- PEDIDOS --- */
+        .sugestao-box, .historico-card { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; color: #333; }
         .sub-item { font-size: 0.9em; padding: 5px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; }
-        .badge-data { font-size: 0.7em; background: #eee; padding: 2px 5px; border-radius: 4px; color: #666; }
+        
+        /* --- CORES --- */
+        .quadrado-cor { width: 45px; height: 45px; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; position: relative; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 10px; }
+        .quadrado-cor input[type="color"] { position: absolute; top: -10px; left: -10px; width: 70px; height: 70px; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
@@ -34,10 +80,11 @@
 
     <div id="interface-principal">
         <button class="btn-voltar" onclick="location.reload()">← Trocar Usuário</button>
+        
         <nav class="navbar">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div id="mini-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-color:#444;"></div>
-                <h2 id="user-display" style="margin:0; font-size: 1.1em;"></h2>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="mini-avatar" style="width:45px; height:45px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
+                <h2 id="user-display" style="margin:0"></h2>
             </div>
             <div class="nav-links">
                 <button onclick="aba('gastos')">Gastos</button>
@@ -57,32 +104,25 @@
                 </div>
             </div>
             <div id="financeiro-setup" style="display:none;">
-                <input type="number" id="inMeta" placeholder="Definir meta">
+                <input type="number" id="inMeta" placeholder="Definir meta mensal">
                 <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
             </div>
         </section>
 
         <section id="pedidos" class="container">
             <h2>📦 Pedidos</h2>
-            
-            <label>Empresa:</label>
             <select id="selEmpresa" onchange="gerarSugestao()">
-                <option value="">Selecione...</option>
+                <option value="">Selecione a Empresa...</option>
             </select>
-
             <div id="areaSugestao"></div>
-
             <button class="btn-acao" style="background:#f39c12" onclick="toggleNovoPedido()">+ Adicionar Pedido Feito</button>
-
             <div id="view-novo-pedido" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
-                <h3>Novo Pedido</h3>
                 <input type="text" id="pProdNome" placeholder="Produto">
                 <input type="number" id="pProdUn" placeholder="Quantidade">
                 <button class="btn-acao" style="background:#444" onclick="addItemTemp()">+ Incluir Item</button>
                 <div id="listaTemp" style="margin:10px 0"></div>
-                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Finalizar e Criar Histórico</button>
+                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Finalizar e Salvar Histórico</button>
             </div>
-
             <hr style="margin:20px 0; opacity:0.1">
             <h3>📜 Últimos Pedidos</h3>
             <div id="listaHistorico"></div>
@@ -90,32 +130,42 @@
 
         <section id="ajustes" class="container">
             <h2>Ajustes</h2>
-            <input type="text" id="cfgNome" placeholder="Trocar meu nome">
+            <label>Nome do Perfil:</label>
+            <input type="text" id="cfgNome">
             <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Nome</button>
             <hr>
-            <input type="text" id="newEmpresa" placeholder="Cadastrar Nova Empresa">
-            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Adicionar Empresa</button>
+            <label>Link da Foto de Perfil:</label>
+            <input type="text" id="cfgFoto" placeholder="URL da imagem">
+            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
             <hr>
-            <input type="text" id="cfgFoto" placeholder="Link da Foto">
-            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto</button>
-            <button class="btn-acao" style="background:#666; margin-top:30px" onclick="zerarTudo()">Resetar Gastos</button>
+            <label>Personalizar Cores:</label>
+            <div style="margin: 15px 0;">
+                Fundo: <div class="quadrado-cor" id="previewBg"><input type="color" id="cfgBg" oninput="previewCor()"></div>
+                Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
+            </div>
+            <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
+            <hr>
+            <label>Empresas:</label>
+            <input type="text" id="newEmpresa" placeholder="Nova empresa">
+            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar Empresa</button>
+            <button class="btn-acao" style="background:#666; margin-top:30px" onclick="zerarTudo()">Resetar Dados de Gastos</button>
         </section>
     </div>
 
     <script>
         let logado = "";
         let listaTemp = [];
-        const DB_KEY = 'casa_premium_v_finalisima';
+        const DB_KEY = 'casa_premium_v6';
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
             perfis: {
-                "Brena": { meta: 0, gastos: 0, foto: "" },
-                "Yara": { meta: 0, gastos: 0, foto: "" },
-                "Nathalia": { meta: 0, gastos: 0, foto: "" }
+                "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+                "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+                "Nathalia": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
             },
             empresas: ["Coca-Cola"],
-            pedidosPadrao: {}, // Último pedido por empresa para sugestão
-            historico: [] // Todos os pedidos feitos
+            pedidosPadrao: {},
+            historico: []
         };
 
         function renderPerfis() {
@@ -132,24 +182,26 @@
             document.getElementById('tela-perfis').style.display = 'none';
             document.getElementById('interface-principal').style.display = 'block';
             document.getElementById('user-display').innerText = nome;
-            atualizarMiniAvatar(); aba('gastos');
+            aplicarCores(); atualizarMiniAvatar(); aba('gastos');
         }
 
         function aba(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'pedidos') { popularEmpresas(); renderHistorico(); }
+            if(id === 'ajustes') carregarAjustes();
         }
 
         function popularEmpresas() {
             const sel = document.getElementById('selEmpresa');
-            sel.innerHTML = '<option value="">Selecione...</option>';
+            sel.innerHTML = '<option value="">Selecione a Empresa...</option>';
             db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
         }
 
+        // --- PEDIDOS ---
         function toggleNovoPedido() {
-            const display = document.getElementById('view-novo-pedido').style.display;
-            document.getElementById('view-novo-pedido').style.display = display === 'none' ? 'block' : 'none';
+            const view = document.getElementById('view-novo-pedido');
+            view.style.display = view.style.display === 'none' ? 'block' : 'none';
         }
 
         function addItemTemp() {
@@ -168,51 +220,37 @@
 
         function salvarPedidoFinal() {
             const emp = document.getElementById('selEmpresa').value;
-            if(!emp || listaTemp.length === 0) return alert("Escolha a empresa e adicione itens!");
-            
-            const novoPedido = { empresa: emp, itens: [...listaTemp], data: new Date().toLocaleDateString('pt-BR'), quem: logado };
-            
-            db.historico.unshift(novoPedido); // Adiciona ao histórico
-            db.pedidosPadrao[emp] = [...listaTemp]; // Define como o novo padrão de sugestão
-            
-            listaTemp = [];
-            salvar();
-            alert("Pedido salvo e adicionado ao histórico!");
-            toggleNovoPedido();
-            renderHistorico();
-            gerarSugestao();
+            if(!emp || listaTemp.length === 0) return alert("Preencha a empresa e os itens!");
+            db.historico.unshift({ empresa: emp, itens: [...listaTemp], data: new Date().toLocaleDateString('pt-BR') });
+            db.pedidosPadrao[emp] = [...listaTemp];
+            listaTemp = []; salvar(); toggleNovoPedido(); renderHistorico(); gerarSugestao();
         }
 
         function renderHistorico() {
-            const div = document.getElementById('listaHistorico');
-            div.innerHTML = db.historico.slice(0, 5).map(p => `
+            document.getElementById('listaHistorico').innerHTML = db.historico.slice(0, 5).map(p => `
                 <div class="historico-card">
-                    <div style="display:flex; justify-content:space-between"><b>${p.empresa}</b> <span class="badge-data">${p.data}</span></div>
-                    <div style="font-size:0.8em; color:#666">${p.itens.map(i => i.nome + " ("+i.un+")").join(", ")}</div>
-                </div>
-            `).join("");
+                    <div style="display:flex; justify-content:space-between"><b>${p.empresa}</b> <small>${p.data}</small></div>
+                    <div style="font-size:0.85em; color:#555; margin-top:5px">${p.itens.map(i => i.nome + " ("+i.un+")").join(", ")}</div>
+                </div>`).join("");
         }
 
         function gerarSugestao() {
             const emp = document.getElementById('selEmpresa').value;
             const area = document.getElementById('areaSugestao');
             if(!emp || !db.pedidosPadrao[emp]) { area.innerHTML = ""; return; }
-            
-            let html = `<div class="sugestao-box"><strong>Sugestão baseada no último pedido:</strong><br><br>`;
+            let html = `<div class="sugestao-box"><strong>O que pedir:</strong><br><br>`;
             db.pedidosPadrao[emp].forEach((it, idx) => {
-                html += `<div style="margin-bottom:8px"><small>${it.nome} (${it.un} un)</small><br>
-                <input type="number" placeholder="Quanto tem?" oninput="document.getElementById('res_${idx}').innerText = Math.max(0, ${it.un} - this.value)" style="padding:5px; width:70px">
-                <span style="color:#e50914; font-weight:bold; margin-left:10px">Pedir: <span id="res_${idx}">0</span></span></div>`;
+                html += `<div style="margin-bottom:8px"><small>${it.nome} (${it.un})</small><br><input type="number" placeholder="Tem?" oninput="document.getElementById('res_${idx}').innerText = Math.max(0, ${it.un} - this.value)" style="padding:5px; width:70px"> <span style="color:#e50914; font-weight:bold">Pedir: <span id="res_${idx}">0</span></span></div>`;
             });
-            area.innerHTML = html + `</div>`;
+            area.innerHTML = html + "</div>";
         }
 
-        // FUNÇÕES DE GASTOS
+        // --- GASTOS E AJUSTES ---
         function renderFinanceiro() {
             const p = db.perfis[logado];
-            if(p.meta === 0) { document.getElementById('financeiro-ok').style.display = 'none'; document.getElementById('financeiro-setup').style.display = 'block'; }
+            if(p.meta === 0) { document.getElementById('financeiro-ok').style.display='none'; document.getElementById('financeiro-setup').style.display='block'; }
             else { 
-                document.getElementById('financeiro-ok').style.display = 'block'; document.getElementById('financeiro-setup').style.display = 'none';
+                document.getElementById('financeiro-ok').style.display='block'; document.getElementById('financeiro-setup').style.display='none';
                 document.getElementById('valMeta').innerText = p.meta.toFixed(2);
                 document.getElementById('totalG').innerText = `R$ ${p.gastos.toFixed(2)}`;
                 document.getElementById('restaG').innerText = `R$ ${(p.meta - p.gastos).toFixed(2)}`;
@@ -221,12 +259,38 @@
         function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
         function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value = ''; } }
 
-        // OUTROS
-        function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); alert("OK"); } }
-        function trocarNome() { const n = document.getElementById('cfgNome').value; if(n) { db.perfis[n] = db.perfis[logado]; delete db.perfis[logado]; salvar(); location.reload(); } }
-        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("OK"); }
-        function atualizarMiniAvatar() { const f = db.perfis[logado].foto; const m = document.getElementById('mini-avatar'); m.style.backgroundImage = f ? `url('${f}')` : "none"; m.innerText = f ? "" : logado[0]; }
-        function zerarTudo() { if(confirm("Zerar?")) { db.perfis[logado].gastos = 0; db.perfis[logado].meta = 0; salvar(); renderFinanceiro(); } }
+        function carregarAjustes() {
+            const p = db.perfis[logado];
+            document.getElementById('cfgNome').value = logado;
+            document.getElementById('cfgFoto').value = p.foto;
+            document.getElementById('cfgBg').value = p.cores.bg;
+            document.getElementById('cfgCard').value = p.cores.card;
+            previewCor();
+        }
+        function previewCor() {
+            document.getElementById('previewBg').style.backgroundColor = document.getElementById('cfgBg').value;
+            document.getElementById('previewCard').style.backgroundColor = document.getElementById('cfgCard').value;
+        }
+        function salvarCores() {
+            db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
+            db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
+            salvar(); aplicarCores(); alert("Cores salvas!");
+        }
+        function aplicarCores() {
+            const c = db.perfis[logado].cores;
+            document.body.style.backgroundColor = c.bg;
+            document.documentElement.style.setProperty('--bg-container', c.card);
+        }
+        function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto atualizada!"); }
+        function atualizarMiniAvatar() {
+            const f = db.perfis[logado].foto;
+            const m = document.getElementById('mini-avatar');
+            m.style.backgroundImage = f ? `url('${f}')` : "none";
+            m.innerText = f ? "" : logado[0];
+        }
+        function trocarNome() { const n = document.getElementById('cfgNome').value; if(n && n !== logado) { db.perfis[n] = db.perfis[logado]; delete db.perfis[logado]; salvar(); location.reload(); } }
+        function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); alert("Empresa adicionada!"); } }
+        function zerarTudo() { if(confirm("Deseja zerar os gastos?")) { db.perfis[logado].gastos = 0; db.perfis[logado].meta = 0; salvar(); renderFinanceiro(); } }
         function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
         window.onload = renderPerfis;
     </script>
