@@ -46,7 +46,7 @@
             background: none; border: none; color: #aaa; margin-left: 15px;
             cursor: pointer; font-size: 1em; font-weight: bold;
         }
-        .nav-links button:hover { color: white; }
+        .nav-links button.active { color: white; border-bottom: 2px solid #e50914; }
 
         .container {
             max-width: 480px; margin: 30px auto; background: var(--bg-container);
@@ -87,25 +87,30 @@
                 <h2 id="user-display" style="margin:0"></h2>
             </div>
             <div class="nav-links">
-                <button onclick="aba('gastos')">Gastos</button>
-                <button onclick="aba('pedidos')">Pedidos</button>
-                <button onclick="aba('ajustes')">Ajustes</button>
+                <button id="btn-aba-gastos" onclick="aba('gastos')">Gastos</button>
+                <button id="btn-aba-pedidos" onclick="aba('pedidos')">Pedidos</button>
+                <button id="btn-aba-ajustes" onclick="aba('ajustes')">Ajustes</button>
             </div>
         </nav>
 
-        <section id="gastos" class="container active">
+        <section id="gastos" class="container">
             <h2>Meus Gastos</h2>
-            <div id="financeiro-ok">
-                <p>Meta: R$ <span id="valMeta">0</span></p>
-                <input type="number" id="inGasto" placeholder="Valor do gasto">
-                <button class="btn-acao" onclick="addGasto()">Registrar</button>
+            <div id="financeiro-ok" style="display:none;">
+                <p style="font-weight: bold; color: #666;">Meta Mensal: R$ <span id="valMeta">0</span></p>
+                <input type="number" id="inGasto" placeholder="Valor do gasto (ex: 50.00)">
+                <button class="btn-acao" onclick="addGasto()">Registrar Gasto</button>
+                
                 <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                    <p>Total: <span id="totalG">0</span> | Restante: <b id="restaG">0</b></p>
+                    <p style="margin: 5px 0;">Total Gasto: <span id="totalG" style="font-weight: bold;">R$ 0,00</span></p>
+                    <p style="margin: 5px 0;">Ainda Resta: <b id="restaG" style="color: #27ae60;">R$ 0,00</b></p>
                 </div>
+                <button class="btn-acao" style="background: #999; font-size: 0.8em; margin-top: 20px;" onclick="resetarMetaLocal()">Alterar Meta</button>
             </div>
+
             <div id="financeiro-setup" style="display:none;">
-                <input type="number" id="inMeta" placeholder="Definir meta mensal">
-                <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
+                <p>Você ainda não definiu uma meta para este perfil.</p>
+                <input type="number" id="inMeta" placeholder="Qual sua meta de gastos?">
+                <button class="btn-acao" onclick="setMeta()">Salvar Minha Meta</button>
             </div>
         </section>
 
@@ -116,12 +121,13 @@
             </select>
             <div id="areaSugestao"></div>
             <button class="btn-acao" style="background:#f39c12" onclick="toggleNovoPedido()">+ Adicionar Pedido Feito</button>
+            
             <div id="view-novo-pedido" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
                 <input type="text" id="pProdNome" placeholder="Produto">
                 <input type="number" id="pProdUn" placeholder="Quantidade">
                 <button class="btn-acao" style="background:#444" onclick="addItemTemp()">+ Incluir Item</button>
                 <div id="listaTemp" style="margin:10px 0"></div>
-                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Finalizar e Salvar Histórico</button>
+                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar e Gerar Histórico</button>
             </div>
             <hr style="margin:20px 0; opacity:0.1">
             <h3>📜 Últimos Pedidos</h3>
@@ -132,30 +138,30 @@
             <h2>Ajustes</h2>
             <label>Nome do Perfil:</label>
             <input type="text" id="cfgNome">
-            <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Nome</button>
+            <button class="btn-acao" style="background:#007bff" onclick="trocarNome()">Salvar Novo Nome</button>
             <hr>
-            <label>Link da Foto de Perfil:</label>
-            <input type="text" id="cfgFoto" placeholder="URL da imagem">
+            <label>Foto (Link da Imagem):</label>
+            <input type="text" id="cfgFoto" placeholder="Cole a URL da imagem aqui">
             <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
             <hr>
-            <label>Personalizar Cores:</label>
+            <label>Cores do App:</label>
             <div style="margin: 15px 0;">
                 Fundo: <div class="quadrado-cor" id="previewBg"><input type="color" id="cfgBg" oninput="previewCor()"></div>
                 Card: <div class="quadrado-cor" id="previewCard"><input type="color" id="cfgCard" oninput="previewCor()"></div>
             </div>
             <button class="btn-acao" onclick="salvarCores()">Aplicar Cores</button>
             <hr>
-            <label>Empresas:</label>
-            <input type="text" id="newEmpresa" placeholder="Nova empresa">
-            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar Empresa</button>
-            <button class="btn-acao" style="background:#666; margin-top:30px" onclick="zerarTudo()">Resetar Dados de Gastos</button>
+            <label>Gerenciar Empresas:</label>
+            <input type="text" id="newEmpresa" placeholder="Nome da empresa">
+            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar</button>
+            <button class="btn-acao" style="background:#666; margin-top:40px" onclick="zerarTudo()">Limpar Tudo deste Perfil</button>
         </section>
     </div>
 
     <script>
         let logado = "";
         let listaTemp = [];
-        const DB_KEY = 'casa_premium_v6';
+        const DB_KEY = 'casa_premium_v7';
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
             perfis: {
@@ -182,23 +188,82 @@
             document.getElementById('tela-perfis').style.display = 'none';
             document.getElementById('interface-principal').style.display = 'block';
             document.getElementById('user-display').innerText = nome;
-            aplicarCores(); atualizarMiniAvatar(); aba('gastos');
+            aplicarCores(); 
+            atualizarMiniAvatar(); 
+            aba('gastos'); // Isso já chama o renderFinanceiro()
         }
 
-        function aba(id) {
+        function aba(nomeAba) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'pedidos') { popularEmpresas(); renderHistorico(); }
-            if(id === 'ajustes') carregarAjustes();
+            document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(nomeAba).classList.add('active');
+            document.getElementById('btn-aba-' + nomeAba).classList.add('active');
+
+            if(nomeAba === 'gastos') renderFinanceiro();
+            if(nomeAba === 'pedidos') { popularEmpresas(); renderHistorico(); }
+            if(nomeAba === 'ajustes') carregarAjustes();
         }
 
+        // --- LÓGICA DE GASTOS (CORRIGIDA) ---
+        function renderFinanceiro() {
+            const p = db.perfis[logado];
+            const areaOk = document.getElementById('financeiro-ok');
+            const areaSetup = document.getElementById('financeiro-setup');
+
+            if (!p.meta || p.meta <= 0) {
+                areaOk.style.display = 'none';
+                areaSetup.style.display = 'block';
+            } else {
+                areaOk.style.display = 'block';
+                areaSetup.style.display = 'none';
+                
+                document.getElementById('valMeta').innerText = p.meta.toFixed(2);
+                document.getElementById('totalG').innerText = "R$ " + p.gastos.toFixed(2);
+                
+                let restante = p.meta - p.gastos;
+                const fieldResta = document.getElementById('restaG');
+                fieldResta.innerText = "R$ " + restante.toFixed(2);
+                fieldResta.style.color = restante < 0 ? "#e50914" : "#27ae60";
+            }
+        }
+
+        function setMeta() {
+            const m = parseFloat(document.getElementById('inMeta').value);
+            if(m > 0) {
+                db.perfis[logado].meta = m;
+                salvar();
+                renderFinanceiro();
+            } else {
+                alert("Insira um valor de meta válido!");
+            }
+        }
+
+        function addGasto() {
+            const v = parseFloat(document.getElementById('inGasto').value);
+            if(v > 0) {
+                db.perfis[logado].gastos += v;
+                salvar();
+                renderFinanceiro();
+                document.getElementById('inGasto').value = '';
+            }
+        }
+
+        function resetarMetaLocal() {
+            if(confirm("Deseja alterar sua meta mensal?")) {
+                db.perfis[logado].meta = 0;
+                salvar();
+                renderFinanceiro();
+            }
+        }
+
+        // --- RESTANTE DAS FUNÇÕES ---
         function popularEmpresas() {
             const sel = document.getElementById('selEmpresa');
             sel.innerHTML = '<option value="">Selecione a Empresa...</option>';
             db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
         }
 
-        // --- PEDIDOS ---
         function toggleNovoPedido() {
             const view = document.getElementById('view-novo-pedido');
             view.style.display = view.style.display === 'none' ? 'block' : 'none';
@@ -238,26 +303,12 @@
             const emp = document.getElementById('selEmpresa').value;
             const area = document.getElementById('areaSugestao');
             if(!emp || !db.pedidosPadrao[emp]) { area.innerHTML = ""; return; }
-            let html = `<div class="sugestao-box"><strong>O que pedir:</strong><br><br>`;
+            let html = `<div class="sugestao-box"><strong>Sugestão baseada no último pedido:</strong><br><br>`;
             db.pedidosPadrao[emp].forEach((it, idx) => {
                 html += `<div style="margin-bottom:8px"><small>${it.nome} (${it.un})</small><br><input type="number" placeholder="Tem?" oninput="document.getElementById('res_${idx}').innerText = Math.max(0, ${it.un} - this.value)" style="padding:5px; width:70px"> <span style="color:#e50914; font-weight:bold">Pedir: <span id="res_${idx}">0</span></span></div>`;
             });
             area.innerHTML = html + "</div>";
         }
-
-        // --- GASTOS E AJUSTES ---
-        function renderFinanceiro() {
-            const p = db.perfis[logado];
-            if(p.meta === 0) { document.getElementById('financeiro-ok').style.display='none'; document.getElementById('financeiro-setup').style.display='block'; }
-            else { 
-                document.getElementById('financeiro-ok').style.display='block'; document.getElementById('financeiro-setup').style.display='none';
-                document.getElementById('valMeta').innerText = p.meta.toFixed(2);
-                document.getElementById('totalG').innerText = `R$ ${p.gastos.toFixed(2)}`;
-                document.getElementById('restaG').innerText = `R$ ${(p.meta - p.gastos).toFixed(2)}`;
-            }
-        }
-        function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
-        function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value = ''; } }
 
         function carregarAjustes() {
             const p = db.perfis[logado];
@@ -267,30 +318,57 @@
             document.getElementById('cfgCard').value = p.cores.card;
             previewCor();
         }
+
         function previewCor() {
             document.getElementById('previewBg').style.backgroundColor = document.getElementById('cfgBg').value;
             document.getElementById('previewCard').style.backgroundColor = document.getElementById('cfgCard').value;
         }
+
         function salvarCores() {
             db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
             db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
-            salvar(); aplicarCores(); alert("Cores salvas!");
+            salvar(); aplicarCores(); alert("Cores aplicadas!");
         }
+
         function aplicarCores() {
             const c = db.perfis[logado].cores;
             document.body.style.backgroundColor = c.bg;
             document.documentElement.style.setProperty('--bg-container', c.card);
         }
+
         function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto atualizada!"); }
+        
         function atualizarMiniAvatar() {
             const f = db.perfis[logado].foto;
             const m = document.getElementById('mini-avatar');
             m.style.backgroundImage = f ? `url('${f}')` : "none";
             m.innerText = f ? "" : logado[0];
         }
-        function trocarNome() { const n = document.getElementById('cfgNome').value; if(n && n !== logado) { db.perfis[n] = db.perfis[logado]; delete db.perfis[logado]; salvar(); location.reload(); } }
-        function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); popularEmpresas(); alert("Empresa adicionada!"); } }
-        function zerarTudo() { if(confirm("Deseja zerar os gastos?")) { db.perfis[logado].gastos = 0; db.perfis[logado].meta = 0; salvar(); renderFinanceiro(); } }
+
+        function trocarNome() { 
+            const n = document.getElementById('cfgNome').value.trim(); 
+            if(n && n !== logado) { 
+                db.perfis[n] = db.perfis[logado]; 
+                delete db.perfis[logado]; 
+                salvar(); 
+                location.reload(); 
+            } 
+        }
+
+        function addEmpresa() { 
+            const e = document.getElementById('newEmpresa').value.trim(); 
+            if(e) { db.empresas.push(e); salvar(); popularEmpresas(); alert("Empresa cadastrada!"); } 
+        }
+
+        function zerarTudo() { 
+            if(confirm("Isso apagará seus gastos e sua meta. Continuar?")) { 
+                db.perfis[logado].gastos = 0; 
+                db.perfis[logado].meta = 0; 
+                salvar(); 
+                renderFinanceiro(); 
+            } 
+        }
+
         function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
         window.onload = renderPerfis;
     </script>
