@@ -3,97 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador Premium</title>
+    <title>Organizador tutti</title>
+    
     <style>
-        :root { --bg-body: #141414; --bg-container: #ffffff; --cor-texto: #333333; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: white; margin: 0; transition: 0.4s; }
-        
+        :root {
+            --bg-body: #141414;
+            --bg-container: #ffffff;
+            --cor-texto: #333333;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-body); 
+            color: white; margin: 0; transition: 0.4s;
+        }
+
         /* --- TELA DE PERFIS --- */
-        #tela-perfis { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #tela-perfis {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        }
+
         .perfis-container { display: flex; gap: 30px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
         .perfil-card { cursor: pointer; text-align: center; width: 120px; transition: 0.3s; }
-        .avatar { width: 120px; height: 120px; border-radius: 8px; background-size: cover; background-position: center; background-color: #333; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; border: 3px solid transparent; }
+        .perfil-card:hover { transform: scale(1.1); }
+        
+        .avatar {
+            width: 120px; height: 120px; border-radius: 8px;
+            background-size: cover; background-position: center;
+            border: 3px solid transparent; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+            background-color: #333;
+        }
         .perfil-card:hover .avatar { border-color: white; }
 
-        /* --- INTERFACE --- */
+        /* --- INTERFACE PRINCIPAL --- */
         #interface-principal { display: none; }
-        .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 100; }
-        .nav-links button { background: none; border: none; color: #aaa; margin-left: 15px; cursor: pointer; font-weight: bold; }
-        .nav-links button.active { color: white; border-bottom: 2px solid #e50914; }
+        
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; background: rgba(0,0,0,0.8);
+        }
 
-        .container { max-width: 480px; margin: 20px auto; background: var(--bg-container); padding: 25px; border-radius: 12px; color: var(--cor-texto); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .nav-links button {
+            background: none; border: none; color: #aaa; margin-left: 15px;
+            cursor: pointer; font-size: 1em; font-weight: bold;
+        }
+        .nav-links button:hover { color: white; }
+
+        .container {
+            max-width: 480px; margin: 30px auto; background: var(--bg-container);
+            padding: 25px; border-radius: 12px; color: var(--cor-texto);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
         section { display: none; }
         section.active { display: block; }
 
-        input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button.btn-acao { padding: 12px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        input { padding: 12px; width: 90%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button.btn-acao { 
+            padding: 12px; background: #e50914; color: white; 
+            border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
+        }
 
-        .item-vencimento { padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 8px solid #ddd; background: #f9f9f9; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #333; }
+        /* Vencimentos e Alertas */
+        .item-vencimento {
+            padding: 15px; margin: 10px 0; border-radius: 8px;
+            border-left: 8px solid #ddd; background: #f9f9f9;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
         .urgente { border: 2px solid #e50914; position: relative; }
-        .urgente::before { content: "⚠️ PRIORIDADE"; position: absolute; top: -10px; left: 10px; background: #e50914; color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
+        .urgente::before { 
+            content: "⚠️ PRIORIDADE"; position: absolute; top: -10px; left: 10px; 
+            background: #e50914; color: white; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; font-weight: bold;
+        }
+        
         .vencido { background-color: #ffcccc !important; border-left-color: #ff0000 !important; }
         .alerta-laranja { background-color: #ffedcc !important; border-left-color: #ffa500 !important; }
 
-        .sugestao-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; position: relative; }
-        .btn-limpar-sugestao { background: #666; color: white; border: none; padding: 5px 10px; font-size: 0.7em; cursor: pointer; border-radius: 3px; margin-top: 10px; width: 100%; }
+        .btn-zerar { background: #666 !important; margin-top: 20px; }
+        .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="tela-perfis">
-        <h1>Quem está usando?</h1>
-        <div class="perfis-container" id="lista-avatars"></div>
+        <h1 style="font-size: 2.5em;">Quem está usando?</h1>
+        <div class="perfis-container" id="lista-avatars">
+            </div>
     </div>
 
     <div id="interface-principal">
         <button class="btn-voltar" onclick="location.reload()">← Trocar Usuário</button>
+        
         <nav class="navbar">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div id="mini-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
-                <h2 id="user-display" style="margin:0; font-size: 1.1em;"></h2>
+                <div id="mini-avatar" style="width:45px; height:45px; border-radius:50%; background-size:cover; background-position:center; background-color:#444;"></div>
+                <h2 id="user-display" style="margin:0"></h2>
             </div>
             <div class="nav-links">
-                <button id="btn-gastos" onclick="aba('gastos')">Gastos</button>
-                <button id="btn-pedidos" onclick="aba('pedidos')">Pedidos</button>
-                <button id="btn-vencimentos" onclick="aba('vencimentos')">Vencimentos</button>
-                <button id="btn-ajustes" onclick="aba('ajustes')">Ajustes</button>
+                <button onclick="aba('gastos')">Gastos</button>
+                <button onclick="aba('vencimentos')">Vencimentos</button>
+                <button onclick="aba('ajustes')">Ajustes</button>
             </div>
         </nav>
 
-        <section id="gastos" class="container">
+        <section id="gastos" class="container active">
             <h2>Meus Gastos</h2>
             <div id="financeiro-ok">
                 <p>Meta Mensal: <b>R$ <span id="valMeta">0</span></b></p>
                 <input type="number" id="inGasto" placeholder="Valor do gasto (R$)">
                 <button class="btn-acao" onclick="addGasto()">Registrar Gasto</button>
                 <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                    <p>Total Gasto: <span id="totalG">R$ 0,00</span></p>
-                    <p>Restante: <b id="restaG">R$ 0,00</b></p>
+                    <p style="margin: 5px 0;">Gasto Total: <span id="totalG">0</span></p>
+                    <p style="margin: 5px 0;">Restante: <b id="restaG">0</b></p>
                 </div>
             </div>
             <div id="financeiro-setup" style="display:none;">
-                <input type="number" id="inMeta" placeholder="Definir meta mensal (R$)">
-                <button class="btn-acao" onclick="setMeta()">Salvar Meta</button>
-            </div>
-        </section>
-
-        <section id="pedidos" class="container">
-            <h2>📦 Pedidos</h2>
-            <select id="selEmpresa" onchange="gerarSugestao()"><option value="">Selecione a Empresa...</option></select>
-            <div id="areaSugestao"></div>
-            <button class="btn-acao" style="background:#f39c12; margin-top: 20px;" onclick="document.getElementById('view-novo-pedido').style.display='block'">+ Cadastrar Padrão de Pedido</button>
-            <div id="view-novo-pedido" style="display:none; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">
-                <input type="text" id="pProdNome" placeholder="Produto">
-                <input type="number" id="pProdUn" placeholder="Meta de estoque">
-                <button class="btn-acao" style="background:#444" onclick="addItemTemp()">Incluir Item</button>
-                <div id="listaTemp" style="margin:10px 0"></div>
-                <button class="btn-acao" style="background:#27ae60" onclick="salvarPedidoFinal()">Salvar Padrão</button>
+                <p>Você ainda não definiu uma meta.</p>
+                <input type="number" id="inMeta" placeholder="Defina sua meta mensal (R$)">
+                <button class="btn-acao" onclick="setMeta()">Salvar e Começar</button>
             </div>
         </section>
 
         <section id="vencimentos" class="container">
-            <h2>⚠️ Vencimentos da Casa</h2>
+            <h2>vencimentos</h2>
             <input type="text" id="vNome" placeholder="Nome do Produto">
             <div style="display: flex; gap: 5px;">
                 <input type="number" id="vQtd" placeholder="Qtd">
@@ -101,39 +136,33 @@
             </div>
             <input type="date" id="vData">
             <button class="btn-acao" style="background:#007bff" onclick="addVenc()">Adicionar Item</button>
-            <div id="listaV" style="margin-top:15px;"></div>
+            <div id="listaV" style="margin-top:15px; color: #333; text-align: left;"></div>
         </section>
 
         <section id="ajustes" class="container">
-            <h2>Ajustes</h2>
-            <input type="text" id="cfgFoto" placeholder="URL da Foto">
-            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Salvar Foto Perfil</button>
-            <div style="margin:15px 0">
-                Fundo: <input type="color" id="cfgBg" onchange="salvarCores()"> 
-                Card: <input type="color" id="cfgCard" onchange="salvarCores()">
+            <h2>Ajustes de Perfil</h2>
+            <label>Foto de Perfil (URL da imagem):</label>
+            <input type="text" id="cfgFoto" placeholder="https://exemplo.com/foto.jpg">
+            <button class="btn-acao" style="background:#444" onclick="salvarFoto()">Atualizar Foto</button>
+            <hr style="margin: 20px 0; opacity: 0.2;">
+            <label>Cores do meu Painel:</label><br>
+            <div style="margin-top:10px;">
+                Fundo: <input type="color" id="cfgBg" onchange="salvarCores()" style="width:50px;"> 
+                Card: <input type="color" id="cfgCard" onchange="salvarCores()" style="width:50px;">
             </div>
-            <hr>
-            <input type="text" id="newEmpresa" placeholder="Nova Empresa">
-            <button class="btn-acao" style="background:#2ecc71" onclick="addEmpresa()">Cadastrar Empresa</button>
-            <div id="listaEmpresasExcluir" style="margin-top:10px;"></div>
-            <hr>
-            <button class="btn-acao" style="background:#666; margin-top:20px" onclick="zerarDados()">Zerar Meta e Gastos</button>
+            <hr style="margin: 20px 0; opacity: 0.2;">
+            <button class="btn-acao btn-zerar" onclick="zerarDados()">Zerar Minha Meta e Gastos</button>
         </section>
     </div>
 
 <script>
     let logado = "";
-    let listaTemp = [];
-    const DB_KEY = 'casa_premium_v_final';
-
-    let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+    let db = JSON.parse(localStorage.getItem('casaDB_vFinal')) || {
         perfis: {
             "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
             "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
-            "Nathalia": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
+            "Nat": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
         },
-        empresas: ["Coca-Cola"],
-        pedidosPadrao: {},
         vencimentos: []
     };
 
@@ -142,7 +171,11 @@
         container.innerHTML = "";
         Object.keys(db.perfis).forEach(p => {
             const foto = db.perfis[p].foto;
-            container.innerHTML += `<div class="perfil-card" onclick="entrar('${p}')"><div class="avatar" style="background-image: url('${foto}')">${foto?'':p[0]}</div><b>${p}</b></div>`;
+            container.innerHTML += `
+                <div class="perfil-card" onclick="entrar('${p}')">
+                    <div class="avatar" style="background-image: url('${foto}');">${foto ? '' : p[0]}</div>
+                    <span style="font-weight:bold; font-size:1.2em;">${p}</span>
+                </div>`;
         });
     }
 
@@ -151,21 +184,37 @@
         document.getElementById('tela-perfis').style.display = 'none';
         document.getElementById('interface-principal').style.display = 'block';
         document.getElementById('user-display').innerText = nome;
-        aplicarCores(); atualizarMiniAvatar(); aba('gastos');
+        atualizarMiniAvatar();
+        aplicarCores();
+        aba('gastos');
+    }
+
+    function atualizarMiniAvatar() {
+        const foto = db.perfis[logado].foto;
+        const mini = document.getElementById('mini-avatar');
+        if(foto) {
+            mini.style.backgroundImage = `url('${foto}')`;
+            mini.innerText = "";
+        } else {
+            mini.style.backgroundImage = "none";
+            mini.style.display = "flex";
+            mini.style.alignItems = "center";
+            mini.style.justifyContent = "center";
+            mini.style.background = "#555";
+            mini.style.color = "white";
+            mini.innerText = logado[0];
+        }
     }
 
     function aba(id) {
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        const btn = document.getElementById('btn-' + id);
-        if(btn) btn.classList.add('active');
         if(id === 'gastos') renderFinanceiro();
         if(id === 'vencimentos') renderVenc();
         if(id === 'ajustes') carregarAjustes();
-        if(id === 'pedidos') popularEmpresas();
     }
 
+    // --- FINANCEIRO ---
     function renderFinanceiro() {
         const p = db.perfis[logado];
         if(p.meta === 0) {
@@ -179,78 +228,90 @@
             document.getElementById('restaG').innerText = `R$ ${(p.meta - p.gastos).toFixed(2)}`;
         }
     }
-    function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
-    function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value=''; } }
-    function zerarDados() { if(confirm("Zerar meta e gastos?")) { db.perfis[logado].meta = 0; db.perfis[logado].gastos = 0; salvar(); renderFinanceiro(); } }
 
-    // --- PEDIDOS ---
-    function popularEmpresas() {
-        const sel = document.getElementById('selEmpresa');
-        sel.innerHTML = '<option value="">Selecione a Empresa...</option>';
-        db.empresas.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
+    function setMeta() {
+        const m = parseFloat(document.getElementById('inMeta').value);
+        if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); }
     }
-    function addItemTemp() {
-        const n = document.getElementById('pProdNome').value;
-        const u = document.getElementById('pProdUn').value;
-        if(n && u) { listaTemp.push({nome: n, un: parseInt(u)}); renderTemp(); }
-    }
-    function renderTemp() { document.getElementById('listaTemp').innerHTML = listaTemp.map(i => `<div>${i.nome} (${i.un})</div>`).join(""); }
-    function salvarPedidoFinal() {
-        const emp = document.getElementById('selEmpresa').value;
-        if(!emp) return alert("Selecione a empresa");
-        db.pedidosPadrao[emp] = [...listaTemp];
-        listaTemp = []; salvar(); document.getElementById('view-novo-pedido').style.display='none'; gerarSugestao();
-    }
-    function gerarSugestao() {
-        const emp = document.getElementById('selEmpresa').value;
-        const area = document.getElementById('areaSugestao');
-        if(!emp || !db.pedidosPadrao[emp] || db.pedidosPadrao[emp].length === 0) { area.innerHTML = ""; return; }
-        let html = `<div class="sugestao-box"><strong>Sugestão ${emp}:</strong><br>`;
-        db.pedidosPadrao[emp].forEach((it, idx) => {
-            html += `<div style="margin:8px 0">${it.nome} (Meta: ${it.un})<br>Tenho: <input type="number" style="width:50px" oninput="document.getElementById('r_${idx}').innerText = Math.max(0, ${it.un} - this.value)"> -> Pedir: <b id="r_${idx}">${it.un}</b></div>`;
-        });
-        html += `<button class="btn-limpar-sugestao" onclick="excluirSugestao('${emp}')">Excluir Padrão de Pedido</button>`;
-        area.innerHTML = html + "</div>";
-    }
-    function excluirSugestao(emp) {
-        if(confirm(`Excluir todos os itens salvos para ${emp}?`)) {
-            delete db.pedidosPadrao[emp];
-            salvar(); gerarSugestao();
+
+    function addGasto() {
+        const v = parseFloat(document.getElementById('inGasto').value);
+        if(v > 0) { 
+            db.perfis[logado].gastos += v; 
+            salvar(); 
+            renderFinanceiro(); 
+            document.getElementById('inGasto').value = ''; 
         }
     }
 
-    // --- VENCIMENTOS ---
+    function zerarDados() {
+        if(confirm("Deseja zerar sua meta e gastos?")) {
+            db.perfis[logado].meta = 0;
+            db.perfis[logado].gastos = 0;
+            salvar(); renderFinanceiro();
+        }
+    }
+
+    // --- VENCIMENTOS INTELIGENTES ---
     function addVenc() {
         const n = document.getElementById('vNome').value;
         const q = parseInt(document.getElementById('vQtd').value) || 0;
         const p = parseFloat(document.getElementById('vPreco').value) || 0;
         const d = document.getElementById('vData').value;
-        if(n && d) { db.vencimentos.push({ n, q, p, d }); salvar(); renderVenc(); }
+        if(n && d) { 
+            db.vencimentos.push({ n, q, p, d }); 
+            salvar(); 
+            renderVenc(); 
+            document.getElementById('vNome').value = '';
+            document.getElementById('vQtd').value = '';
+            document.getElementById('vPreco').value = '';
+        }
     }
+
     function renderVenc() {
         const lista = document.getElementById('listaV');
         lista.innerHTML = "";
         const hoje = new Date();
         db.vencimentos.sort((a,b) => new Date(a.d) - new Date(b.d));
+
         db.vencimentos.forEach((it, i) => {
             const dataV = new Date(it.d);
             const diff = Math.ceil((dataV - hoje) / (1000 * 60 * 60 * 24));
+            
             let classe = "";
-            if (diff <= 10) classe = "vencido";
-            else if (diff <= 15) classe = "alerta-laranja";
-            if (classe === "") {
-                if (it.p < 5 && it.q < 15) classe = "alerta-laranja";
-                if (it.p > 5 && it.q === 15 && diff <= 15) classe = "alerta-laranja";
+            // 1. Vermelho: Faltam 10 dias ou menos
+            if (diff <= 10) {
+                classe = "vencido";
+            } 
+            // 2. Laranja: Entre 11 e 15 dias
+            else if (diff <= 15) {
+                classe = "alerta-laranja";
             }
+
+            // 3. Condições extras para Alerta Laranja
+            if (classe === "") {
+                // Preço < 5 e Qtd < 15
+                if (it.p < 5 && it.q < 15) {
+                    classe = "alerta-laranja";
+                }
+                // Preço > 5 e Qtd exatamente 15 e faltam 15 dias ou menos
+                // (Como diff <= 15 já foi checado no passo 2, validamos preço/estoque aqui)
+                if (it.p > 5 && it.q === 15 && diff <= 15) {
+                    classe = "alerta-laranja";
+                }
+            }
+
             const destaque = (i === 0 && diff <= 15) ? "urgente" : "";
+
             lista.innerHTML += `
                 <div class="item-vencimento ${classe} ${destaque}">
                     <span><b>${it.n}</b> (${it.q} un)<br>
-                    <small>R$ ${it.p.toFixed(2)} | Venc: ${it.d.split('-').reverse().join('/')}</small></span>
-                    <button onclick="delV(${i})" style="background:none; border:none; cursor:pointer;">❌</button>
+                    <small>R$ ${it.p.toFixed(2)} | Vencimento: ${it.d.split('-').reverse().join('/')}</small></span>
+                    <button onclick="delV(${i})" style="background:none; border:none; cursor:pointer; font-size:1.2em;">❌</button>
                 </div>`;
         });
     }
+
     function delV(i) { db.vencimentos.splice(i,1); salvar(); renderVenc(); }
 
     // --- AJUSTES ---
@@ -259,35 +320,31 @@
         document.getElementById('cfgFoto').value = p.foto;
         document.getElementById('cfgBg').value = p.cores.bg;
         document.getElementById('cfgCard').value = p.cores.card;
-        
-        const list = document.getElementById('listaEmpresasExcluir');
-        list.innerHTML = "<strong>Empresas Cadastradas:</strong><br>";
-        db.empresas.forEach((e, i) => {
-            list.innerHTML += `<div style='display:flex; justify-content:space-between; margin-top:5px;'>${e} <button onclick='excluirEmpresa(${i})' style='color:red; background:none; border:none; cursor:pointer'>Excluir</button></div>`;
-        });
     }
-    function salvarFoto() { db.perfis[logado].foto = document.getElementById('cfgFoto').value; salvar(); atualizarMiniAvatar(); alert("Foto atualizada!"); }
+
+    function salvarFoto() {
+        db.perfis[logado].foto = document.getElementById('cfgFoto').value;
+        salvar();
+        atualizarMiniAvatar();
+        alert("Foto atualizada com sucesso!");
+    }
+
     function salvarCores() {
         db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
         db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
         salvar(); aplicarCores();
     }
+
     function aplicarCores() {
         const c = db.perfis[logado].cores;
         document.body.style.backgroundColor = c.bg;
         document.documentElement.style.setProperty('--bg-container', c.card);
     }
-    function atualizarMiniAvatar() {
-        const f = db.perfis[logado].foto;
-        const m = document.getElementById('mini-avatar');
-        m.style.backgroundImage = f ? `url('${f}')` : "none";
-        m.innerText = f ? "" : logado[0];
-        m.style.display = "flex"; m.style.alignItems = "center"; m.style.justifyContent = "center"; m.style.color = "white"; m.style.fontWeight = "bold";
-    }
-    function addEmpresa() { const e = document.getElementById('newEmpresa').value; if(e) { db.empresas.push(e); salvar(); carregarAjustes(); document.getElementById('newEmpresa').value = ""; } }
-    function excluirEmpresa(i) { if(confirm("Remover esta empresa?")) { db.empresas.splice(i,1); salvar(); carregarAjustes(); } }
-    function salvar() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-    window.onload = renderPerfis;
+
+    function salvar() { localStorage.setItem('casaDB_vFinal', JSON.stringify(db)); }
+
+    renderPerfis();
 </script>
 </body>
 </html>
+
