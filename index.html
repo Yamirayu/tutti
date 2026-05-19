@@ -59,7 +59,7 @@
         section { display: none; }
         section.active { display: block; }
 
-        input { padding: 12px; width: 90%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        input { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button.btn-acao { 
             padding: 12px; background: #e50914; color: white; 
             border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
@@ -84,14 +84,15 @@
 
         .btn-zerar { background: #666 !important; margin-top: 20px; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
+        
+        .acoes-venc { display: flex; gap: 10px; align-items: center; }
     </style>
 </head>
 <body>
 
     <div id="tela-perfis">
         <h1 style="font-size: 2.5em;">Quem está usando?</h1>
-        <div class="perfis-container" id="lista-avatars">
-            </div>
+        <div class="perfis-container" id="lista-avatars"></div>
     </div>
 
     <div id="interface-principal">
@@ -128,14 +129,14 @@
         </section>
 
         <section id="vencimentos" class="container">
-            <h2>vencimentos</h2>
+            <h2>Vencimentos</h2>
             <input type="text" id="vNome" placeholder="Nome do Produto">
             <div style="display: flex; gap: 5px;">
                 <input type="number" id="vQtd" placeholder="Qtd">
                 <input type="number" id="vPreco" placeholder="Preço (R$)">
             </div>
             <input type="date" id="vData">
-            <button class="btn-acao" style="background:#007bff" onclick="addVenc()">Adicionar Item</button>
+            <button class="btn-acao" id="btnVenc" style="background:#007bff" onclick="addVenc()">Adicionar Item</button>
             <div id="listaV" style="margin-top:15px; color: #333; text-align: left;"></div>
         </section>
 
@@ -252,7 +253,7 @@
         }
     }
 
-    // --- VENCIMENTOS INTELIGENTES ---
+    // --- VENCIMENTOS (ADICIONAR / EDITAR) ---
     function addVenc() {
         const n = document.getElementById('vNome').value;
         const q = parseInt(document.getElementById('vQtd').value) || 0;
@@ -265,6 +266,7 @@
             document.getElementById('vNome').value = '';
             document.getElementById('vQtd').value = '';
             document.getElementById('vPreco').value = '';
+            document.getElementById('vData').value = '';
         }
     }
 
@@ -279,26 +281,12 @@
             const diff = Math.ceil((dataV - hoje) / (1000 * 60 * 60 * 24));
             
             let classe = "";
-            // 1. Vermelho: Faltam 10 dias ou menos
-            if (diff <= 10) {
-                classe = "vencido";
-            } 
-            // 2. Laranja: Entre 11 e 15 dias
-            else if (diff <= 15) {
-                classe = "alerta-laranja";
-            }
+            if (diff <= 10) classe = "vencido";
+            else if (diff <= 15) classe = "alerta-laranja";
 
-            // 3. Condições extras para Alerta Laranja
             if (classe === "") {
-                // Preço < 5 e Qtd < 15
-                if (it.p < 5 && it.q < 15) {
-                    classe = "alerta-laranja";
-                }
-                // Preço > 5 e Qtd exatamente 15 e faltam 15 dias ou menos
-                // (Como diff <= 15 já foi checado no passo 2, validamos preço/estoque aqui)
-                if (it.p > 5 && it.q === 15 && diff <= 15) {
-                    classe = "alerta-laranja";
-                }
+                if (it.p < 5 && it.q < 15) classe = "alerta-laranja";
+                if (it.p > 5 && it.q === 15 && diff <= 15) classe = "alerta-laranja";
             }
 
             const destaque = (i === 0 && diff <= 15) ? "urgente" : "";
@@ -307,9 +295,24 @@
                 <div class="item-vencimento ${classe} ${destaque}">
                     <span><b>${it.n}</b> (${it.q} un)<br>
                     <small>R$ ${it.p.toFixed(2)} | Vencimento: ${it.d.split('-').reverse().join('/')}</small></span>
-                    <button onclick="delV(${i})" style="background:none; border:none; cursor:pointer; font-size:1.2em;">❌</button>
+                    <div class="acoes-venc">
+                        <button onclick="editV(${i})" style="background:none; border:none; cursor:pointer; font-size:1.2em;">✏️</button>
+                        <button onclick="delV(${i})" style="background:none; border:none; cursor:pointer; font-size:1.2em;">❌</button>
+                    </div>
                 </div>`;
         });
+    }
+
+    function editV(i) {
+        const it = db.vencimentos[i];
+        document.getElementById('vNome').value = it.n;
+        document.getElementById('vQtd').value = it.q;
+        document.getElementById('vPreco').value = it.p;
+        document.getElementById('vData').value = it.d;
+        
+        // Remove o antigo para que o "Adicionar" funcione como um "Salvar Edição"
+        db.vencimentos.splice(i, 1);
+        document.getElementById('vNome').focus();
     }
 
     function delV(i) { db.vencimentos.splice(i,1); salvar(); renderVenc(); }
@@ -324,9 +327,8 @@
 
     function salvarFoto() {
         db.perfis[logado].foto = document.getElementById('cfgFoto').value;
-        salvar();
-        atualizarMiniAvatar();
-        alert("Foto atualizada com sucesso!");
+        salvar(); atualizarMiniAvatar();
+        alert("Foto atualizada!");
     }
 
     function salvarCores() {
@@ -347,4 +349,3 @@
 </script>
 </body>
 </html>
-
