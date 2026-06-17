@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador Premium - Meninas</title>
+    <title>Organizador Premium</title>
     <style>
         :root {
             --bg-body: #141414;
@@ -58,18 +58,18 @@
         section { display: none; }
         section.active { display: block; }
 
-        input, select { padding: 12px; width: 100%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        input { padding: 12px; width: 90%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button.btn-acao { 
             padding: 12px; background: #e50914; color: white; 
             border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
         }
 
-        /* Itens e Listas */
-        .item-vencimento, .item-salgado {
+        /* Vencimentos e Alertas */
+        .item-vencimento {
             padding: 15px; margin: 10px 0; border-radius: 8px;
             border-left: 8px solid #ddd; background: #f9f9f9;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
         .urgente { border: 2px solid #e50914; position: relative; }
@@ -83,15 +83,6 @@
 
         .btn-zerar { background: #666 !important; margin-top: 20px; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; cursor: pointer; margin: 10px; border-radius: 5px; font-weight: bold; }
-        .acoes-venc { display: flex; gap: 10px; align-items: center; }
-        
-        #searchV { background-color: #f0f0f0; border: 2px solid #e50914; font-weight: bold; }
-
-        /* Grid da Estufa de Salgados */
-        .grid-salgados { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
-        .grid-salgados label { font-size: 0.85em; font-weight: bold; color: #444; }
-        .sugestao-container { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em; color: #333; }
-        .switch-acabou { display: flex; align-items: center; gap: 4px; font-size: 0.75em; color: #c0392b; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -111,7 +102,6 @@
             </div>
             <div class="nav-links">
                 <button onclick="aba('gastos')">Gastos</button>
-                <button onclick="aba('salgados')">Salgados</button>
                 <button onclick="aba('vencimentos')">Vencimentos</button>
                 <button onclick="aba('ajustes')">Ajustes</button>
             </div>
@@ -135,47 +125,15 @@
             </div>
         </section>
 
-        <section id="salgados" class="container">
-            <h2>Estufa de Salgados</h2>
-            
-            <div id="bloco-sugestao-salgados"></div>
-
-            <div style="background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px; color:#333;">
-                <label><b>Data do Controle:</b></label>
-                <input type="date" id="salgData" onchange="atualizarDiaSemanaEPrevisoes()">
-                <div id="dia-semana-detectado" style="font-size: 0.85em; font-weight: bold; color: #e50914; margin-bottom: 10px;"></div>
-                
-                <div class="grid-salgados" style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">
-                    <span><b>Sabor</b></span>
-                    <span style="text-align: center;"><b>Colocou</b></span>
-                    <span style="text-align: center;"><b>Sobrou</b></span>
-                </div>
-
-                <div id="lista-sabores-inputs"></div>
-
-                <button class="btn-acao" style="background:#27ae60" onclick="salvarControleSalgados()">Salvar Fechamento</button>
-            </div>
-
-            <h3>Histórico Recente</h3>
-            <div id="historicoSalgados"></div>
-        </section>
-
         <section id="vencimentos" class="container">
             <h2>Vencimentos da Casa</h2>
-            
-            <div style="background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px;">
-                <small><b>Cadastrar Novo / Editar:</b></small>
-                <input type="text" id="vNome" placeholder="Nome do Produto">
-                <div style="display: flex; gap: 5px;">
-                    <input type="number" id="vQtd" placeholder="Qtd">
-                    <input type="number" id="vPreco" placeholder="Preço (R$)">
-                </div>
-                <input type="date" id="vData">
-                <button class="btn-acao" style="background:#007bff" onclick="addVenc()">Salvar Item</button>
+            <input type="text" id="vNome" placeholder="Nome do Produto">
+            <div style="display: flex; gap: 5px;">
+                <input type="number" id="vQtd" placeholder="Qtd">
+                <input type="number" id="vPreco" placeholder="Preço (R$)">
             </div>
-
-            <hr style="opacity: 0.2; margin: 20px 0;">
-            <input type="text" id="searchV" placeholder="🔍 Pesquisar na lista..." onkeyup="renderVenc()">
+            <input type="date" id="vData">
+            <button class="btn-acao" style="background:#007bff" onclick="addVenc()">Adicionar Item</button>
             <div id="listaV" style="margin-top:15px; color: #333; text-align: left;"></div>
         </section>
 
@@ -198,26 +156,15 @@
 <script>
     let logado = "";
     
-    // Lista com os 9 itens organizados
-    const SABORES_PADRAO = [
-        "Croissant Queijo", "Croissant Presunto e Queijo", "Croissant Frango com Requeijão",
-        "Esfirra Calabresa", "Esfirra Frango", "Pão de Hambúrguer",
-        "Coxinha", "Empada Frango", "Pão de Batata"
-    ];
-
+    // Configuração inicial com Erick, Yara e Nathalia
     let db = JSON.parse(localStorage.getItem('casaDB_vFinal')) || {
         perfis: {
-            "Brena": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
+            "Erick": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
             "Yara": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } },
             "Nathalia": { meta: 0, gastos: 0, foto: "", cores: { bg: "#141414", card: "#ffffff" } }
         },
-        vencimentos: [],
-        historicoSalgados: [],
-        saboresAcabados: {}
+        vencimentos: []
     };
-
-    if (!db.historicoSalgados) db.historicoSalgados = [];
-    if (!db.saboresAcabados) db.saboresAcabados = {};
 
     function renderPerfis() {
         const container = document.getElementById('lista-avatars');
@@ -237,13 +184,6 @@
         document.getElementById('tela-perfis').style.display = 'none';
         document.getElementById('interface-principal').style.display = 'block';
         document.getElementById('user-display').innerText = nome;
-        
-        const hoje = new Date();
-        const ano = hoje.getFullYear();
-        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoje.getDate()).padStart(2, '0');
-        document.getElementById('salgData').value = `${ano}-${mes}-${dia}`;
-
         atualizarMiniAvatar();
         aplicarCores();
         aba('gastos');
@@ -270,7 +210,6 @@
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(id === 'gastos') renderFinanceiro();
-        if(id === 'salgados') { renderFormSalgados(); gerenciarSugestaoSalgados(); renderHistoricoSalgados(); }
         if(id === 'vencimentos') renderVenc();
         if(id === 'ajustes') carregarAjustes();
     }
@@ -290,171 +229,114 @@
         }
     }
 
-    function setMeta() { const m = parseFloat(document.getElementById('inMeta').value); if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); } }
-    function addGasto() { const v = parseFloat(document.getElementById('inGasto').value); if(v > 0) { db.perfis[logado].gastos += v; salvar(); renderFinanceiro(); document.getElementById('inGasto').value = ''; } }
-    function zerarDados() { if(confirm("Deseja zerar sua meta e gastos?")) { db.perfis[logado].meta = 0; db.perfis[logado].gastos = 0; salvar(); renderFinanceiro(); } }
+    function setMeta() {
+        const m = parseFloat(document.getElementById('inMeta').value);
+        if(m > 0) { db.perfis[logado].meta = m; salvar(); renderFinanceiro(); }
+    }
 
-    // --- INTELIGÊNCIA DE SALGADOS ---
-    const DIAS_SEMANA = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-
-    function atualizarDiaSemanaEPrevisoes() {
-        const dataInput = document.getElementById('salgData').value;
-        const txtDia = document.getElementById('dia-semana-detectado');
-        if(dataInput) {
-            const part = dataInput.split('-');
-            const d = new Date(part[0], part[1] - 1, part[2]);
-            txtDia.innerText = "Dia da Semana: " + DIAS_SEMANA[d.getDay()];
-            gerenciarSugestaoSalgados();
+    function addGasto() {
+        const v = parseFloat(document.getElementById('inGasto').value);
+        if(v > 0) { 
+            db.perfis[logado].gastos += v; 
+            salvar(); 
+            renderFinanceiro(); 
+            document.getElementById('inGasto').value = ''; 
         }
     }
 
-    function renderFormSalgados() {
-        atualizarDiaSemanaEPrevisoes();
-        const container = document.getElementById('lista-sabores-inputs');
-        container.innerHTML = "";
-        
-        SABORES_PADRAO.forEach((sabor, idx) => {
-            const estaAcabado = db.saboresAcabados[sabor] ? 'checked' : '';
-            container.innerHTML += `
-                <div class="grid-salgados">
-                    <label>${sabor}</label>
-                    <input type="number" id="col_${idx}" min="0" placeholder="0" style="text-align:center;">
-                    <input type="number" id="sob_${idx}" min="0" placeholder="0" style="text-align:center;">
-                </div>
-                <div style="margin-top: -6px; margin-bottom:12px; display:flex; justify-content: flex-end;">
-                    <label class="switch-acabou">
-                        <input type="checkbox" id="acabou_${idx}" ${estaAcabado} onchange="toggleEstoqueSabor('${sabor}', this.checked)"> Marcar como esgotado no estoque
-                    </label>
-                </div>`;
-        });
+    function zerarDados() {
+        if(confirm("Deseja zerar sua meta e gastos?")) {
+            db.perfis[logado].meta = 0;
+            db.perfis[logado].gastos = 0;
+            salvar(); renderFinanceiro();
+        }
     }
 
-    function toggleEstoqueSabor(sabor, checked) {
-        db.saboresAcabados[sabor] = checked;
-        salvar();
-        gerenciarSugestaoSalgados();
+    // --- VENCIMENTOS INTELIGENTES ---
+    function addVenc() {
+        const n = document.getElementById('vNome').value;
+        const q = parseInt(document.getElementById('vQtd').value) || 0;
+        const p = parseFloat(document.getElementById('vPreco').value) || 0;
+        const d = document.getElementById('vData').value;
+        if(n && d) { 
+            db.vencimentos.push({ n, q, p, d }); 
+            salvar(); 
+            renderVenc(); 
+            document.getElementById('vNome').value = '';
+            document.getElementById('vQtd').value = '';
+            document.getElementById('vPreco').value = '';
+        }
     }
 
-    function gerenciarSugestaoSalgados() {
-        const display = document.getElementById('bloco-sugestao-salgados');
-        const dataInput = document.getElementById('salgData').value;
-        if(!dataInput) { display.innerHTML = ""; return; }
+    function renderVenc() {
+        const lista = document.getElementById('listaV');
+        lista.innerHTML = "";
+        const hoje = new Date();
+        db.vencimentos.sort((a,b) => new Date(a.d) - new Date(b.d));
 
-        const part = dataInput.split('-');
-        const d = new Date(part[0], part[1] - 1, part[2]);
-        const diaSemanaDesejado = d.getDay();
-
-        if(db.historicoSalgados.length < 5) {
-            display.innerHTML = `
-                <div class="sugestao-container" style="background:#fff3e0; border-left-color:#ff9800;">
-                    💡 <b>Modo de Aprendizado:</b> Colete mais dados para liberar sugestões personalizadas por dia da semana (${db.historicoSalgados.length}/5 envios salvos).
-                </div>`;
-            return;
-        }
-
-        let historicoFiltrado = db.historicoSalgados.filter(h => h.diaSemana === diaSemanaDesejado);
-        if(historicoFiltrado.length === 0) {
-            historicoFiltrado = db.historicoSalgados.slice(-5);
-        }
-
-        let htmlSugestoes = `<div class="sugestao-container">
-            🚀 <b>Sugestão Recomendada para ${DIAS_SEMANA[diaSemanaDesejado]}:</b><br><ul style="margin: 5px 0 0 15px; padding:0;">`;
-
-        SABORES_PADRAO.forEach(sabor => {
-            if(db.saboresAcabados[sabor]) {
-                htmlSugestoes += `<li style="color:#c0392b;"><b>${sabor}:</b> 🛑 Item em falta no estoque geral. Não preparar!</li>`;
-                return;
+        db.vencimentos.forEach((it, i) => {
+            const dataV = new Date(it.d);
+            const diff = Math.ceil((dataV - hoje) / (1000 * 60 * 60 * 24));
+            
+            let classe = "";
+            if (diff <= 10) {
+                classe = "vencido";
+            } else if (diff <= 15) {
+                classe = "alerta-laranja";
             }
 
-            let somaVenda = 0;
-            let contagem = 0;
-
-            historicoFiltrado.forEach(reg => {
-                if(reg.sabores[sabor]) {
-                    somaVenda += reg.sabores[sabor].vendido;
-                    contagem++;
+            if (classe === "") {
+                if (it.p < 5 && it.q < 15) {
+                    classe = "alerta-laranja";
                 }
-            });
+                if (it.p > 5 && it.q === 15 && diff <= 15) {
+                    classe = "alerta-laranja";
+                }
+            }
 
-            let mediaVenda = contagem > 0 ? Math.round(somaVenda / contagem) : 8;
-            let sugestaoQtd = mediaVenda + 2;
-            if (sugestaoQtd < 5) sugestaoQtd = 5;
+            const destaque = (i === 0 && diff <= 15) ? "urgente" : "";
 
-            htmlSugestoes += `<li><b>${sabor}:</b> Preparar <b>${sugestaoQtd} unidades</b> (Média de saídas anteriores: ${mediaVenda}).</li>`;
+            lista.innerHTML += `
+                <div class="item-vencimento ${classe} ${destaque}">
+                    <span><b>${it.n}</b> (${it.q} un)<br>
+                    <small>R$ ${it.p.toFixed(2)} | Vencimento: ${it.d.split('-').reverse().join('/')}</small></span>
+                    <button onclick="delV(${i})" style="background:none; border:none; cursor:pointer; font-size:1.2em;">❌</button>
+                </div>`;
         });
-
-        htmlSugestoes += `</ul></div>`;
-        display.innerHTML = htmlSugestoes;
     }
 
-    function salvarControleSalgados() {
-        const dataInput = document.getElementById('salgData').value;
-        if(!dataInput) return alert("Selecione uma data válida!");
+    function delV(i) { db.vencimentos.splice(i,1); salvar(); renderVenc(); }
 
-        const part = dataInput.split('-');
-        const d = new Date(part[0], part[1] - 1, part[2]);
-        const diaSemana = d.getDay();
+    // --- AJUSTES ---
+    function carregarAjustes() {
+        const p = db.perfis[logado];
+        document.getElementById('cfgFoto').value = p.foto;
+        document.getElementById('cfgBg').value = p.cores.bg;
+        document.getElementById('cfgCard').value = p.cores.card;
+    }
 
-        let registroDia = { data: dataInput, diaSemana: diaSemana, sabores: {} };
-        let mudouAlgo = false;
-
-        SABORES_PADRAO.forEach((sabor, idx) => {
-            const colocado = parseInt(document.getElementById(`col_${idx}`).value) || 0;
-            const sobrou = parseInt(document.getElementById(`sob_${idx}`).value) || 0;
-            
-            if(colocado > 0) mudouAlgo = true;
-
-            let vendido = colocado - sobrou;
-            if(vendido < 0) vendido = 0;
-
-            registroDia.sabores[sabor] = { colocado: colocado, sobrou: sobrou, vendido: vendido };
-        });
-
-        if(!mudouAlgo) return alert("Insira ao menos um item preenchido para salvar.");
-
-        db.historicoSalgados = db.historicoSalgados.filter(h => h.data !== dataInput);
-        db.historicoSalgados.push(registroDia);
+    function salvarFoto() {
+        db.perfis[logado].foto = document.getElementById('cfgFoto').value;
         salvar();
-        
-        SABORES_PADRAO.forEach((_, idx) => {
-            document.getElementById(`col_${idx}`).value = '';
-            document.getElementById(`sob_${idx}`).value = '';
-        });
-
-        gerenciarSugestaoSalgados();
-        renderHistoricoSalgados();
-        alert("Fechamento registrado com sucesso!");
+        atualizarMiniAvatar();
+        alert("Foto atualizada com sucesso!");
     }
 
-    function renderHistoricoSalgados() {
-        const histDiv = document.getElementById('historicoSalgados');
-        histDiv.innerHTML = "";
-        
-        if(db.historicoSalgados.length === 0) {
-            histDiv.innerHTML = "<p style='font-size:0.9em; color:#666;'>Nenhum registro armazenado.</p>";
-            return;
-        }
+    function salvarCores() {
+        db.perfis[logado].cores.bg = document.getElementById('cfgBg').value;
+        db.perfis[logado].cores.card = document.getElementById('cfgCard').value;
+        salvar(); aplicarCores();
+    }
 
-        const copiaOrdenada = [...db.historicoSalgados].sort((a,b) => new Date(b.data) - new Date(a.data));
+    function aplicarCores() {
+        const c = db.perfis[logado].cores;
+        document.body.style.backgroundColor = c.bg;
+        document.documentElement.style.setProperty('--bg-container', c.card);
+    }
 
-        copiaOrdenada.forEach((reg) => {
-            const dataBr = reg.data.split('-').reverse().join('/');
-            let totalColocado = 0;
-            let totalVendido = 0;
-            let detalheSabores = "";
+    function salvar() { localStorage.setItem('casaDB_vFinal', JSON.stringify(db)); }
 
-            Object.keys(reg.sabores).forEach(sab => {
-                const item = reg.sabores[sab];
-                totalColocado += item.colocado;
-                totalVendido += item.vendido;
-                if(item.colocado > 0) {
-                    detalheSabores += `<br>• ${sab}: Vendeu ${item.vendido} de ${item.colocado} (Sobrou: ${item.sobrou})`;
-                }
-            });
-
-            const idxReal = db.historicoSalgados.findIndex(h => h.data === reg.data);
-
-            histDiv.innerHTML += `
-                <div class="item-salgado" style="flex-direction: column; align-items: flex-start; position:relative;">
-                    <button onclick="deletarHistoricoSalgado(${idxReal})" style="position:absolute; right:10px; top:10px; background:none; border:none; cursor:pointer;">❌</button>
-                    <span style="font-size:0.95em;">🗓️ <b>
+    renderPerfis();
+</script>
+</body>
+</html>
